@@ -194,29 +194,12 @@ def get_current_aqi_for_region(region_name):
 
 
 def get_aqi_history_for_region(region_name):
-    """
-    Mengambil histori ISPU per jam untuk kebutuhan grafik.
-
-    Rentang grafik yang digunakan:
-        02:00 sampai 19:00
-
-    Catatan:
-    - Fungsi hanya menggunakan data yang benar-benar tersedia di CSV.
-    - Jika suatu jam belum mempunyai data, jam tersebut tetap dikembalikan
-      dengan nilai None agar frontend mengetahui bahwa titik tersebut kosong.
-    - Tidak ada nilai ISPU yang dibuat-buat/diestimasi di layer service.
-      Nilai histori harus berasal dari CSV atau sumber data histori yang valid.
-    """
-    target_region = _normalize_region(region_name)
-
-    # Jam yang memang dibutuhkan oleh grafik.
-    target_intervals = [
-        f"{hour:02d}:00"
-        for hour in range(2, 20)
-    ]
-
-    history_by_hour = {}
+    history_data = []
     tanggal_histori = ""
+    
+    # Penyesuaian interval waktu menjadi 1 jam untuk grafik
+    target_intervals = [f"{str(i).zfill(2)}:00" for i in range(24)]
+    target_region = _normalize_region(region_name)
 
     try:
         rows = _read_csv_rows()
@@ -226,58 +209,40 @@ def get_aqi_history_for_region(region_name):
             jam = row.get("Jam Histori", "").strip()
 
             if (
-                _normalize_region(kota) != target_region
-                or jam not in target_intervals
+                _normalize_region(kota) == target_region
+                and jam in target_intervals
             ):
-                continue
+                # Ekstrak tanggal untuk subjudul chart frontend
+                if not tanggal_histori:
+                    tanggal_histori = row.get("Tanggal Histori", "").strip()
 
-            # Ambil tanggal histori dari data yang cocok.
-            if not tanggal_histori:
-                tanggal_histori = row.get("Tanggal Histori", "").strip()
+                # Ambil satu titik data untuk setiap jam.
+                if not any(h["jam"] == jam for h in history_data):
+                    try:
+                        aqi = int(float(row["ISPU Histori"]))
+                    except (ValueError, TypeError):
+                        continue
 
-            # Jika terdapat duplikasi jam, gunakan baris pertama yang valid.
-            if jam in history_by_hour:
-                continue
+                    history_data.append({
+                        "jam": jam,
+                        "aqi": aqi,
+                    })
 
-            raw_aqi = row.get("ISPU Histori", "").strip()
+        # Urutkan sesuai urutan waktu yang ditentukan.
+        interval_order = {
+            jam: index
+            for index, jam in enumerate(target_intervals)
+        }
 
-            try:
-                aqi = int(float(raw_aqi))
-            except (ValueError, TypeError):
-                aqi = None
-
-            history_by_hour[jam] = {
-                "jam": jam,
-                "aqi": aqi,
-            }
-
-        # SELALU bentuk 18 titik (02:00 ... 19:00), termasuk jam
-        # yang belum tersedia di CSV. Ini membuat struktur response
-        # konsisten untuk frontend/chart.
-        history_data = [
-            history_by_hour.get(
-                jam,
-                {
-                    "jam": jam,
-                    "aqi": None,
-                },
-            )
-            for jam in target_intervals
-        ]
+        history_data.sort(
+            key=lambda x: interval_order.get(x["jam"], 999)
+        )
 
     except Exception as e:
         print(f"Error membaca history: {e}")
 
-        # Tetap kembalikan struktur yang konsisten meskipun CSV gagal dibaca.
-        history_data = [
-            {
-                "jam": jam,
-                "aqi": None,
-            }
-            for jam in target_intervals
-        ]
-
+    # Struktur response diubah menjadi dictionary untuk memuat metadata tanggal
     return {
         "tanggal": tanggal_histori,
-        "data_per_jam": history_data,
+        "data_per_jam": history_data
     }
