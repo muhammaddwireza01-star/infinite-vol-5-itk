@@ -8,7 +8,7 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { cities, defaultCity } from "../data/regions";
+import { cities, defaultCity } from "../data/region";
 import "./Login.css";
 
 const Login = () => {

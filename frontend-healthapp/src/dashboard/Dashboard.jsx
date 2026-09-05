@@ -6,7 +6,7 @@ import KondisiFotoTab from "./tabs/KondisiFotoTab";
 import PolaTrenTab from "./tabs/PolaTrenTab";
 import EdukasiTab from "./tabs/EdukasiTab";
 import TentangTab from "./tabs/TentangTab";
-import { defaultCity } from "../data/regions";
+import { defaultCity } from "../data/region";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
