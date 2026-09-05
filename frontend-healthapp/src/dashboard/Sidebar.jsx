@@ -1,4 +1,5 @@
 import "./Sidebar.css";
+import { cities } from "../data/regions";
 
 const navItems = [
   {
@@ -15,7 +16,7 @@ const navItems = [
   },
   {
     id: "kondisi-foto",
-    label: "Kondisi Foto",
+    label: "Ambil Foto",
     icon: (
       <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <path
@@ -64,7 +65,7 @@ const navItems = [
   },
 ];
 
-const Sidebar = ({ activeTab, onTabChange }) => {
+const Sidebar = ({ activeTab, onTabChange, city, onLocationChange }) => {
   return (
     <aside className="sidebar">
       <div>
@@ -107,19 +108,9 @@ const Sidebar = ({ activeTab, onTabChange }) => {
 
         {/* Location Selector */}
         <div className="sidebar-location">
-          <label>Provinsi</label>
-          <select defaultValue="Kalimantan Timur">
-            <option>Kalimantan Timur</option>
-            <option>DKI Jakarta</option>
-            <option>Jawa Barat</option>
-            <option>Riau</option>
-          </select>
           <label>Kota</label>
-          <select defaultValue="Samarinda">
-            <option>Samarinda</option>
-            <option>Balikpapan</option>
-            <option>Bontang</option>
-            <option>Kutai Kartanegara</option>
+          <select value={city} onChange={(event) => onLocationChange(event.target.value)}>
+            {cities.map((item) => <option key={item}>{item}</option>)}
           </select>
         </div>
       </div>

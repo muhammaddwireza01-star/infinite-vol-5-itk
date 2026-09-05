@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
-    <nav className="navbar shadow-sm min-h-20 sticky top-0 z-50 bg-[#9FE0DA]">
+    <nav className="landing-nav navbar sticky top-0 z-50">
       <div className="navbar-start flex gap-2">
-        <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn lg:hidden">
+        <div className="dropdown landing-nav-dropdown">
+          <div tabIndex={0} role="button" className="landing-menu-toggle">
             <svg
               aria-label="Menu"
               xmlns="http://www.w3.org/2000/svg"
@@ -24,45 +24,50 @@ const Navbar = () => {
           </div>
           <ul
             tabIndex={-1}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+            className="landing-mobile-menu menu menu-sm dropdown-content z-1 mt-3 w-52 p-2 shadow">
             <li>
-              <a>Home</a>
+              <a href="#home">Beranda</a>
             </li>
             <li>
-              <a>Features</a>
+              <a href="#features">Fitur</a>
             </li>
             <li>
-              <a>How It Works</a>
+              <a href="#solutions">Edukasi</a>
             </li>
             <li>
-              <a>About</a>
+              <a href="#about">Tentang</a>
+            </li>
+            <li>
+              <a href="#contact">Kontak</a>
             </li>
           </ul>
         </div>
-        <a className="text-xl text-gray-950 font-semibold">AppName</a>
+        <a className="landing-brand">AIRWISE<span>air quality, made clear</span></a>
       </div>
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 text-gray-900">
+        <ul className="landing-menu menu menu-horizontal px-1">
           <li>
-            <a>Home</a>
+            <a href="#home">Beranda</a>
           </li>
           <li>
-            <a>Features</a>
+            <a href="#features">Fitur</a>
           </li>
           <li>
-            <a>How It Works</a>
+            <a href="#solutions">Edukasi</a>
           </li>
           <li>
-            <a>About</a>
+            <a href="#about">Tentang</a>
+          </li>
+          <li>
+            <a href="#contact">Kontak</a>
           </li>
         </ul>
       </div>
       <div className="navbar-end">
-        <Link
-          to={"/dashboard"}
-          className="btn bg-[#10B1A3] border-none min-w-20">
-          Dashboard
-        </Link>
+        <div className="landing-auth-actions">
+          <Link to="/login" className="landing-login-button">Masuk</Link>
+          <Link to="/login" className="landing-nav-button">Daftar</Link>
+        </div>
       </div>
     </nav>
   );

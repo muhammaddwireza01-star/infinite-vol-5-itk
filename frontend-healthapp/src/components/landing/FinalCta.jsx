@@ -1,26 +1,22 @@
 import { Link } from "react-router-dom";
+import { FaArrowRight } from "react-icons/fa";
 
 const FinalCta = () => {
   return (
-    <section className="flex flex-col gap-10 py-20">
+    <section id="cta" className="final-cta">
       <div className="flex flex-col gap-4">
-        <span className="text-center text-xs text-[#10B1A3]">Start Now</span>
-        <h1 className="flex flex-col items-center text-center text text-xl">
-          <span>Ready to Understand</span>
-          <span>Your Air?</span>
+        <span className="eyebrow">MULAI HARI INI</span>
+        <h1>
+          <span>Udara sehat dimulai</span>
+          <span><em>dari informasi yang tepat.</em></span>
         </h1>
-        <p className="text-gray-700 text-center">
-          Join thousands of people who make smarter daily decisions with
-          AIRWISE. Free to start — no credit card required.
-        </p>
+        <p>Gabung bersama AIRWISE dan buat keputusan yang lebih baik untuk kesehatan Anda.</p>
       </div>
       <div className="flex flex-col gap-5 items-center">
-        <Link
-          to={"/login"}
-          className="btn px-10 py-6 bg-[#10B1A3] border-none min-w-20">
-          Get Started
+        <Link to="/login" className="primary-action">
+          Coba AIRWISE Sekarang <FaArrowRight />
         </Link>
-        <span>No credit card · Cancel anytime · Free forever plan</span>
+        <span>Gratis untuk memulai · Tanpa kartu kredit</span>
       </div>
     </section>
   );
