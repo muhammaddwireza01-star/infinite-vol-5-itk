@@ -26,7 +26,6 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
 
-<<<<<<< HEAD
     email = db.Column(
         db.String(150),
         unique=True,
@@ -63,6 +62,3 @@ class User(db.Model):
             "email": self.email,
             "region": self.region.to_dict() if self.region else None
         }
-=======
-    region_id = db.Column(db.Integer, nullable=True)
->>>>>>> b7e1de6238b5ca96e1cf64fefc67904dba542462

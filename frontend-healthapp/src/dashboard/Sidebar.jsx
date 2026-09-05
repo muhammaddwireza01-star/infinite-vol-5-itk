@@ -1,12 +1,16 @@
 import "./Sidebar.css";
-import { cities } from "../data/regions";
+import { cities } from "../data/region";
 
 const navItems = [
   {
     id: "dashboard",
     label: "Dashboard",
     icon: (
-      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <svg
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24">
         <rect height="7" rx="1.5" width="7" x="3" y="3" />
         <rect height="7" rx="1.5" width="7" x="14" y="3" />
         <rect height="7" rx="1.5" width="7" x="14" y="14" />
@@ -18,13 +22,21 @@ const navItems = [
     id: "kondisi-foto",
     label: "Ambil Foto",
     icon: (
-      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <svg
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24">
         <path
           d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     ),
   },
@@ -32,8 +44,16 @@ const navItems = [
     id: "pola-tren",
     label: "Pola & Tren",
     icon: (
-      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" strokeLinecap="round" strokeLinejoin="round" />
+      <svg
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24">
+        <path
+          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     ),
   },
@@ -41,7 +61,11 @@ const navItems = [
     id: "edukasi",
     label: "Edukasi",
     icon: (
-      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <svg
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24">
         <path
           d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
           strokeLinecap="round"
@@ -54,7 +78,11 @@ const navItems = [
     id: "tentang",
     label: "Tentang",
     icon: (
-      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <svg
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24">
         <path
           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           strokeLinecap="round"
@@ -80,8 +108,7 @@ const Sidebar = ({ activeTab, onTabChange, city, onLocationChange }) => {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2.2"
-              viewBox="0 0 24 24"
-            >
+              viewBox="0 0 24 24">
               <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
               <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
             </svg>
@@ -98,8 +125,7 @@ const Sidebar = ({ activeTab, onTabChange, city, onLocationChange }) => {
             <button
               key={item.id}
               className={`nav-btn ${activeTab === item.id ? "active" : ""}`}
-              onClick={() => onTabChange(item.id)}
-            >
+              onClick={() => onTabChange(item.id)}>
               {item.icon}
               <span>{item.label}</span>
             </button>
@@ -109,8 +135,12 @@ const Sidebar = ({ activeTab, onTabChange, city, onLocationChange }) => {
         {/* Location Selector */}
         <div className="sidebar-location">
           <label>Kota</label>
-          <select value={city} onChange={(event) => onLocationChange(event.target.value)}>
-            {cities.map((item) => <option key={item}>{item}</option>)}
+          <select
+            value={city}
+            onChange={(event) => onLocationChange(event.target.value)}>
+            {cities.map((item) => (
+              <option key={item}>{item}</option>
+            ))}
           </select>
         </div>
       </div>
@@ -118,7 +148,13 @@ const Sidebar = ({ activeTab, onTabChange, city, onLocationChange }) => {
       {/* Logout */}
       <div className="sidebar-footer">
         <button className="logout-btn">
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24">
             <path
               d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
               strokeLinecap="round"
