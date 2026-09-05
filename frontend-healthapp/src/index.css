@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @plugin "daisyui";
 
@@ -8,9 +9,18 @@
   --color-brand-medium: #dde1e1;
   --color-brand-dark: #bbc3c3;
 
+  /* AIRWISE Ecological Color Tokens */
+  --color-airwise-green: #16a34a;
+  --color-airwise-green-dark: #15803d;
+  --color-airwise-green-light: #22c55e;
+  --color-airwise-green-bg: #e8f5e9;
+  --color-airwise-blue: #0284c7;
+  --color-airwise-canvas: #f8fafc;
+
   /* Token Font */
   --font-inter: "Inter", serif;
   --font-poppins: "Poppins", sans-serif;
+  --font-jakarta: "Plus Jakarta Sans", sans-serif;
 }
 
 /* Pastikan styling elemen global dibungkus menggunakan `@layer base` */
