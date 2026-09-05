@@ -12,6 +12,7 @@ from database.db import db
 from routes.auth import auth_bp
 from routes.region import region_bp
 from routes.aqi import aqi_bp
+from routes.predict import predict_bp
 
 
 def create_app(config_name='default'):
@@ -35,6 +36,7 @@ def create_app(config_name='default'):
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(region_bp, url_prefix='/api')
     app.register_blueprint(aqi_bp, url_prefix='/api')
+    app.register_blueprint(predict_bp, url_prefix='/api')
 
     # Endpoint Health Check
     @app.route('/api/health', methods=['GET'])

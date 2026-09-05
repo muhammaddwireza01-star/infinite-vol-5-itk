@@ -45,13 +45,6 @@ const Features = () => {
             details={details}
           />
         ))}
-        <div className="feature-stats">
-          <span className="eyebrow">AIRWISE DALAM ANGKA</span>
-          <div><strong>20+</strong><small>Kota Dipantau</small></div>
-          <div><strong>15K+</strong><small>Pengguna Aktif</small></div>
-          <div><strong>99%</strong><small>Akurasi Data</small></div>
-          <div><strong>24/7</strong><small>Pemantauan</small></div>
-        </div>
       </div>
 
     </section>

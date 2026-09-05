@@ -1,21 +1,61 @@
 import { useState, useRef } from "react";
 
+const API_BASE = "http://localhost:5000/api";
+
 const KondisiFotoTab = () => {
   const [previewSrc, setPreviewSrc] = useState("");
   const [hasPhoto, setHasPhoto] = useState(false);
-  const [isSupportedPhoto, setIsSupportedPhoto] = useState(true);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState("");
   const fileInputRef = useRef(null);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setHasPhoto(true);
-      const supportedPhoto = !/(dalam|indoor|ruang|interior)/i.test(file.name);
-      setIsSupportedPhoto(supportedPhoto);
-      sessionStorage.setItem("airwise-photo-analysis-ready", String(supportedPhoto));
+      setUploadedFile(file);
+      setAnalysisResult(null);
+      setAnalysisError("");
       const reader = new FileReader();
       reader.onload = (ev) => setPreviewSrc(ev.target.result);
       reader.readAsDataURL(file);
+    }
+  };
+
+  const analyzePhoto = async () => {
+    if (!uploadedFile) return;
+
+    setIsAnalyzing(true);
+    setAnalysisError("");
+    setAnalysisResult(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", uploadedFile);
+
+      const response = await fetch(`${API_BASE}/predict`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const json = await response.json();
+
+      if (!response.ok) {
+        throw new Error(json.message || "Gagal menganalisis foto");
+      }
+
+      setAnalysisResult(json.data);
+    } catch (err) {
+      console.error("Analisis gagal:", err);
+      setAnalysisError(
+        err.message === "Failed to fetch"
+          ? "Tidak dapat terhubung ke server. Pastikan backend Flask sudah berjalan di port 5000."
+          : err.message
+      );
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -56,6 +96,45 @@ const KondisiFotoTab = () => {
     },
   ];
 
+  // Helper: badge color berdasarkan AQI
+  const getAqiBadgeClass = (aqi) => {
+    if (aqi <= 50) return "badge badge-green";
+    if (aqi <= 100) return "badge badge-yellow";
+    if (aqi <= 150) return "badge badge-red";
+    return "badge badge-red";
+  };
+
+  // Helper: warna teks kejernihan
+  const getClarityColor = (label) => {
+    switch (label) {
+      case "Baik": return "#15803d";
+      case "Biasa": return "#854d0e";
+      case "Buruk": return "#dc2626";
+      default: return "#1e293b";
+    }
+  };
+
+  // Helper: warna teks warna langit
+  const getColorLabelColor = (label) => {
+    switch (label) {
+      case "Biru": return "#2563eb";
+      case "Keabuan": return "#64748b";
+      case "Kecokelatan": return "#92400e";
+      case "Kekuningan": return "#ca8a04";
+      default: return "#1e293b";
+    }
+  };
+
+  // Helper: recommendation box class
+  const getRecommendationClass = (type) => {
+    switch (type) {
+      case "success": return "recommendation-box";
+      case "warning": return "recommendation-box recommendation-box-warning";
+      case "danger": return "recommendation-box recommendation-box-warning";
+      default: return "recommendation-box";
+    }
+  };
+
   return (
     <div className="tab-section">
       {/* Header */}
@@ -93,7 +172,9 @@ const KondisiFotoTab = () => {
               <img alt="Preview Foto Udara" src={previewSrc} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent, transparent)", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "16px", color: "white" }}>
                 <p style={{ fontSize: "12px", fontWeight: 600, color: "#cbd5e1" }}>Foto berhasil dipilih</p>
-                <h5 style={{ fontSize: "14px", fontWeight: 700 }}>Siap dianalisis AIRWISE</h5>
+                <h5 style={{ fontSize: "14px", fontWeight: 700 }}>
+                  {analysisResult ? "✅ Analisis selesai" : "Siap dianalisis AIRWISE"}
+                </h5>
               </div>
             </div>
           ) : (
@@ -103,6 +184,38 @@ const KondisiFotoTab = () => {
               <small>Pilih foto kondisi langit untuk memulai analisis.</small>
             </div>
           )}
+          {/* Tombol Analisis — muncul setelah foto diupload */}
+          {hasPhoto && !analysisResult && (
+            <button
+              className="btn-primary-airwise"
+              onClick={analyzePhoto}
+              disabled={isAnalyzing}
+              style={{
+                width: "100%",
+                marginTop: "12px",
+                background: isAnalyzing ? "#94a3b8" : "#16a34a",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+              }}
+            >
+              {isAnalyzing && (
+                <span
+                  style={{
+                    width: "14px",
+                    height: "14px",
+                    border: "2px solid rgba(255,255,255,0.3)",
+                    borderTopColor: "#fff",
+                    borderRadius: "50%",
+                    display: "inline-block",
+                    animation: "spin 0.8s linear infinite",
+                  }}
+                />
+              )}
+              {isAnalyzing ? "Menganalisis Foto..." : "🔍 Analisis dengan AI"}
+            </button>
+          )}
         </div>
       </div>
 
@@ -110,43 +223,98 @@ const KondisiFotoTab = () => {
       <div className="grid-12">
         {/* Hasil Analisis */}
         <div className="airwise-card col-span-5" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-          {hasPhoto && isSupportedPhoto ? <div>
-            <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "16px", marginBottom: "16px" }}>Hasil Analisis</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <div className="info-row">
-                <span style={{ color: "#64748b", fontSize: "13px" }}>Indeks Polusi / AQI</span>
-                <span className="badge badge-red">126</span>
+          {/* State: Hasil prediksi tersedia */}
+          {analysisResult ? (
+            <div>
+              <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "16px", marginBottom: "16px" }}>Hasil Analisis</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                <div className="info-row">
+                  <span style={{ color: "#64748b", fontSize: "13px" }}>Indeks Polusi / AQI</span>
+                  <span className={getAqiBadgeClass(analysisResult.aqi)}>{analysisResult.aqi}</span>
+                </div>
+                <div className="info-row">
+                  <span style={{ color: "#64748b", fontSize: "13px" }}>Visibilitas</span>
+                  <span style={{ fontWeight: 600, color: "#1e293b", fontSize: "13px" }}>{analysisResult.visibilitas}</span>
+                </div>
+                <div className="info-row">
+                  <span style={{ color: "#64748b", fontSize: "13px" }}>Kejernihan Langit</span>
+                  <span style={{ fontWeight: 600, color: getClarityColor(analysisResult.kejernihan_langit), fontSize: "13px" }}>
+                    {analysisResult.kejernihan_langit}
+                  </span>
+                </div>
+                <div className="info-row">
+                  <span style={{ color: "#64748b", fontSize: "13px" }}>Warna Langit</span>
+                  <span style={{ fontWeight: 600, color: getColorLabelColor(analysisResult.warna_langit), fontSize: "13px" }}>
+                    {analysisResult.warna_langit}
+                  </span>
+                </div>
+                <div className="info-row">
+                  <span style={{ color: "#64748b", fontSize: "13px" }}>Status</span>
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      background: analysisResult.status_bg,
+                      color: analysisResult.status_color,
+                      padding: "2px 10px",
+                      borderRadius: "9999px",
+                    }}
+                  >
+                    {analysisResult.status}
+                  </span>
+                </div>
               </div>
-              <div className="info-row">
-                <span style={{ color: "#64748b", fontSize: "13px" }}>Visibilitas</span>
-                <span style={{ fontWeight: 600, color: "#1e293b", fontSize: "13px" }}>Rendah</span>
+              <div className={getRecommendationClass(analysisResult.rekomendasi_type)}>
+                <p style={{ fontSize: "11px", color: "#78350f", fontWeight: 500 }}>
+                  <span style={{ fontWeight: 700 }}>Rekomendasi:</span> {analysisResult.rekomendasi}
+                </p>
               </div>
-              <div className="info-row">
-                <span style={{ color: "#64748b", fontSize: "13px" }}>Kejernihan Langit</span>
-                <span style={{ fontWeight: 600, color: "#dc2626", fontSize: "13px" }}>Buruk</span>
-              </div>
-              <div className="info-row">
-                <span style={{ color: "#64748b", fontSize: "13px" }}>Warna Langit</span>
-                <span style={{ fontWeight: 600, color: "#92400e", fontSize: "13px" }}>Kecokelatan</span>
-              </div>
-              <div className="info-row">
-                <span style={{ color: "#64748b", fontSize: "13px" }}>Status</span>
-                <span className="badge badge-amber-pill">Perlu Waspada</span>
-              </div>
+              {/* Tombol untuk analisis ulang */}
+              <button
+                className="btn-primary-airwise"
+                onClick={triggerUpload}
+                style={{ width: "100%", marginTop: "12px", background: "#475569" }}
+              >
+                Analisis Foto Lain
+              </button>
             </div>
-          <div className="recommendation-box recommendation-box-warning">
-            <p style={{ fontSize: "11px", color: "#78350f", fontWeight: 500 }}>
-              ⚠️ <span style={{ fontWeight: 700 }}>Rekomendasi:</span> Hindari aktivitas luar ruangan terutama bagi kelompok sensitif. Gunakan masker bila mendesak bepergian.
-            </p>
-          </div>
-          </div> : hasPhoto ? <div className="analysis-empty-state">
-            <strong>Foto belum sesuai</strong>
-            <p>Foto dalam ruangan atau tanpa kondisi langit tidak dapat digunakan untuk analisis kualitas udara.</p>
-            <button type="button" onClick={triggerUpload}>Pilih Foto Lain</button>
-          </div> : <div className="analysis-empty-state">
-            <strong>Hasil analisis belum tersedia</strong>
-            <p>Upload foto kondisi langit terlebih dahulu. Data AQI akan muncul setelah foto berhasil diproses.</p>
-          </div>}
+          ) : isAnalyzing ? (
+            /* State: Sedang menganalisis */
+            <div className="analysis-empty-state" style={{ border: "1px solid #bfdbfe", background: "#eff6ff" }}>
+              <span
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  border: "3px solid #bfdbfe",
+                  borderTopColor: "#3b82f6",
+                  borderRadius: "50%",
+                  display: "inline-block",
+                  animation: "spin 0.8s linear infinite",
+                }}
+              />
+              <strong style={{ color: "#1e40af" }}>Menganalisis foto...</strong>
+              <p style={{ color: "#60a5fa" }}>Model AI sedang memproses gambar. Harap tunggu beberapa detik.</p>
+            </div>
+          ) : analysisError ? (
+            /* State: Error */
+            <div className="analysis-empty-state" style={{ border: "1px solid #fecaca", background: "#fef2f2" }}>
+              <strong style={{ color: "#b91c1c" }}>Analisis gagal</strong>
+              <p style={{ color: "#dc2626" }}>{analysisError}</p>
+              <button type="button" onClick={analyzePhoto}>Coba Lagi</button>
+            </div>
+          ) : hasPhoto ? (
+            /* State: Foto ada tapi belum dianalisis */
+            <div className="analysis-empty-state">
+              <strong>Foto siap dianalisis</strong>
+              <p>Klik tombol "Analisis dengan AI" di atas untuk memulai prediksi kualitas udara dari foto ini.</p>
+            </div>
+          ) : (
+            /* State: Belum ada foto */
+            <div className="analysis-empty-state">
+              <strong>Hasil analisis belum tersedia</strong>
+              <p>Upload foto kondisi langit terlebih dahulu. Data AQI akan muncul setelah foto berhasil diproses.</p>
+            </div>
+          )}
         </div>
 
         {/* Riwayat Analisis Foto */}
@@ -175,8 +343,16 @@ const KondisiFotoTab = () => {
           </button>
         </div>
       </div>
+
+      {/* CSS for spinner animation */}
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };
 
 export default KondisiFotoTab;
+

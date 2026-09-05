@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 const DashboardTab = ({ location }) => {
   const [datetime, setDateTime] = useState(new Date());
   const [photoReady] = useState(() => sessionStorage.getItem("airwise-photo-analysis-ready") === "true");
+  const userName = sessionStorage.getItem("airwise-user-name") || "Andi";
 
   const formatTime = (date) => {
     return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
@@ -54,7 +55,7 @@ const DashboardTab = ({ location }) => {
               color: "#0f172a",
               letterSpacing: "-0.025em",
             }}>
-            Halo, Andi 👋
+            Halo, {userName} 👋
           </h2>
           <p style={{ fontSize: "14px", color: "#64748b" }}>
             Berikut ringkasan kualitas udara di {location.city}.
@@ -138,39 +139,6 @@ const DashboardTab = ({ location }) => {
             </div>
           </div>
 
-          {/* Sky Condition Tags */}
-          <div className="sky-tags-grid">
-            <div className="sky-tag">
-              <div className="sky-tag-icon" style={{ background: "#bae6fd" }}>
-                ☀️
-              </div>
-              <span className="sky-tag-label">Langit Cerah</span>
-            </div>
-            <div className="sky-tag">
-              <div className="sky-tag-icon" style={{ background: "#e2e8f0" }}>
-                ⛅
-              </div>
-              <span className="sky-tag-label">Berawan</span>
-            </div>
-            <div className="sky-tag active">
-              <div className="sky-tag-icon" style={{ background: "#fef3c7" }}>
-                🌫️
-              </div>
-              <span className="sky-tag-label">Asap</span>
-            </div>
-            <div className="sky-tag">
-              <div className="sky-tag-icon" style={{ background: "#d6d3d1" }}>
-                🌁
-              </div>
-              <span className="sky-tag-label">Asap Tebal</span>
-            </div>
-            <div className="sky-tag">
-              <div className="sky-tag-icon" style={{ background: "#bfdbfe" }}>
-                🌧️
-              </div>
-              <span className="sky-tag-label">Hujan</span>
-            </div>
-          </div>
         </div>
 
         {/* Analisis Foto Card */}

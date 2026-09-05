@@ -71,21 +71,7 @@ const Sidebar = ({ activeTab, onTabChange, city, onLocationChange }) => {
       <div>
         {/* Brand / Logo */}
         <div className="sidebar-brand">
-          <div className="sidebar-brand-icon">
-            <svg
-              width="24"
-              height="24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2.2"
-              viewBox="0 0 24 24"
-            >
-              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
-              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-            </svg>
-          </div>
+          <img src="/src/assets/logo.jpg" alt="AIRWISE Logo" style={{ width: 40, height: 40, borderRadius: 8 }} />
           <div>
             <h1>AIRWISE</h1>
             <p>Kualitas Udara, Hidup Lebih Sehat</p>
