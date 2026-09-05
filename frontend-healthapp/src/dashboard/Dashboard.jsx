@@ -43,7 +43,12 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-shell">
-      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} {...location} onLocationChange={handleLocationChange} />
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        {...location}
+        onLocationChange={handleLocationChange}
+      />
       <main className="dashboard-main">{renderTab()}</main>
     </div>
   );
