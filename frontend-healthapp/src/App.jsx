@@ -1,9 +1,19 @@
 import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Landingpage from "./landing/Landingpage";
+import Dashboard from "./dashboard/Dashboard";
+import Login from "./pages/Login";
 
 function App() {
   return (
     <>
-      <h1 className="text-amber-500">Hello World</h1>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Landingpage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }
