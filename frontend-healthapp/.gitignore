@@ -22,3 +22,61 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# =========================
+# 1. REACT / NODE.JS (Frontend)
+# =========================
+node_modules/
+build/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.*
+.eslintcache
+
+# =========================
+# 2. PYTHON / FLASK (Backend)
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+.env
+.flaskenv
+instance/
+.pytest_cache/
+flask_session/
+
+# =========================
+# 3. MACHINE LEARNING & DATA
+# =========================
+# Abaikan dataset agar tidak memberatkan repo
+datasets/
+data/
+*.csv
+*.dat
+*.jsonl
+
+# Abaikan model biner agar tidak di-push
+*.pkl
+*.h5
+*.pb
+*.pt
+*.pth
+*.joblib
+models/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# =========================
+# 4. OS & CODE EDITOR
+# =========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
