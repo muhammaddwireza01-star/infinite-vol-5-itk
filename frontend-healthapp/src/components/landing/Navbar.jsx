@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
-    <nav className="navbar shadow-sm min-h-20 sticky top-0 z-50 bg-[#CFEFED]">
+    <nav className="navbar shadow-sm min-h-20 sticky top-0 z-50 bg-[#9FE0DA]">
       <div className="navbar-start flex gap-2">
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn lg:hidden">

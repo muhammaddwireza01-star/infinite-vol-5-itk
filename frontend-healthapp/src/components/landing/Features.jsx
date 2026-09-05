@@ -77,7 +77,7 @@ const Features = () => {
         ))}
       </div>
 
-      <div className="flex flex-col gap-5 w-full bg-[#9FE0DA] p-6 rounded-xl">
+      <div className="flex flex-col gap-5 w-full bg-[#CFEFED] p-6 rounded-xl">
         <h4 className="text-center text-xl">AQI Reference Scale</h4>
         <div className="flex justify-between gap-5 flex-wrap">
           {aqiScales.map(({ label, number, bg, color, textColor, border }) => (
