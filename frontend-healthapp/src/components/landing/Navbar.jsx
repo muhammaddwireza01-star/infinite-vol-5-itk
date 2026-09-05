@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
-    <nav className="navbar bg-base-100 shadow-sm min-h-20">
-      <div className="navbar-start">
+    <nav className="navbar bg-base-100 shadow-sm min-h-20 sticky z-50 bg-brand-medium">
+      <div className="navbar-start flex gap-2">
         <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
+          <div tabIndex={0} role="button" className="btn lg:hidden">
             <svg
               aria-label="Menu"
               xmlns="http://www.w3.org/2000/svg"
@@ -39,10 +39,10 @@ const Navbar = () => {
             </li>
           </ul>
         </div>
-        <a className="btn btn-ghost text-xl">AppName</a>
+        <a className="text-xl text-gray-950 font-semibold">AppName</a>
       </div>
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">
+        <ul className="menu menu-horizontal px-1 text-gray-900">
           <li>
             <a>Home</a>
           </li>
@@ -58,7 +58,7 @@ const Navbar = () => {
         </ul>
       </div>
       <div className="navbar-end">
-        <Link to={"/login"} className="btn ">
+        <Link to={"/login"} className="btn bg-[#10B1A3] border-none min-w-20">
           Login
         </Link>
       </div>
