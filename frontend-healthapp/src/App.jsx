@@ -1,10 +1,18 @@
 import "./App.css";
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landingpage from "./landing/Landingpage";
 import Dashboard from "./dashboard/Dashboard";
 import Login from "./pages/Login";
 
 function App() {
+  useEffect(() => {
+    const navigation = performance.getEntriesByType("navigation")[0];
+    if (navigation?.type === "reload") {
+      sessionStorage.removeItem("airwise-photo-analysis-ready");
+    }
+  }, []);
+
   return (
     <>
       <BrowserRouter>

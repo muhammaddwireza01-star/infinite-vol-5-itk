@@ -6,9 +6,18 @@ import KondisiFotoTab from "./tabs/KondisiFotoTab";
 import PolaTrenTab from "./tabs/PolaTrenTab";
 import EdukasiTab from "./tabs/EdukasiTab";
 import TentangTab from "./tabs/TentangTab";
+import { defaultCity } from "../data/regions";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [location, setLocation] = useState(() => ({
+    city: sessionStorage.getItem("airwise-city") || defaultCity,
+  }));
+
+  const handleLocationChange = (city) => {
+    setLocation({ city });
+    sessionStorage.setItem("airwise-city", city);
+  };
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
@@ -18,7 +27,7 @@ const Dashboard = () => {
   const renderTab = () => {
     switch (activeTab) {
       case "dashboard":
-        return <DashboardTab onNavigate={handleTabChange} />;
+        return <DashboardTab location={location} />;
       case "kondisi-foto":
         return <KondisiFotoTab />;
       case "pola-tren":
@@ -28,13 +37,13 @@ const Dashboard = () => {
       case "tentang":
         return <TentangTab />;
       default:
-        return <DashboardTab onNavigate={handleTabChange} />;
+        return <DashboardTab location={location} />;
     }
   };
 
   return (
     <div className="dashboard-shell">
-      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
+      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} {...location} onLocationChange={handleLocationChange} />
       <main className="dashboard-main">{renderTab()}</main>
     </div>
   );

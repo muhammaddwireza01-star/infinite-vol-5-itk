@@ -1,14 +1,18 @@
 import { useState, useRef } from "react";
 
 const KondisiFotoTab = () => {
-  const [previewSrc, setPreviewSrc] = useState(
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuCvuKtVpsVUOTTLdl0nVmJgaGfrp459_NdEsq9LA6BQIi7JgsroLavekFO3F9nCtvSZQVAIeDDDhjH64R5KHN6tCvx3VgzxhI07woXxj1vJOd5ORbhn6tmJ_gce65ENNM8qCaXTXKVvfJWN-N3RY866aI6UEbsvq_d1mwcLSAB8eRi9kPAta7IfofJ1YXeHOVpx5giD824PpXoujgcvcD7pI0WxDdUav5S74Fko_u4ft2JXLaCBkE7n"
-  );
+  const [previewSrc, setPreviewSrc] = useState("");
+  const [hasPhoto, setHasPhoto] = useState(false);
+  const [isSupportedPhoto, setIsSupportedPhoto] = useState(true);
   const fileInputRef = useRef(null);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setHasPhoto(true);
+      const supportedPhoto = !/(dalam|indoor|ruang|interior)/i.test(file.name);
+      setIsSupportedPhoto(supportedPhoto);
+      sessionStorage.setItem("airwise-photo-analysis-ready", String(supportedPhoto));
       const reader = new FileReader();
       reader.onload = (ev) => setPreviewSrc(ev.target.result);
       reader.readAsDataURL(file);
@@ -61,12 +65,6 @@ const KondisiFotoTab = () => {
           <p style={{ fontSize: "14px", color: "#64748b" }}>Unggah atau ambil foto untuk mengetahui kondisi udara saat ini.</p>
         </div>
         <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleImageUpload} />
-        <button className="btn-primary-airwise" style={{ display: "flex", alignItems: "center", gap: "8px" }} onClick={triggerUpload}>
-          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-            <path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          Ambil Foto
-        </button>
       </div>
 
       {/* Upload & Preview Row */}
@@ -90,13 +88,21 @@ const KondisiFotoTab = () => {
         {/* Photo Preview */}
         <div className="airwise-card" style={{ display: "flex", flexDirection: "column" }}>
           <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "14px", marginBottom: "12px" }}>Foto yang Diupload</h3>
-          <div style={{ position: "relative", flex: 1, minHeight: "220px", borderRadius: "12px", overflow: "hidden", background: "#0f172a" }}>
-            <img alt="Preview Foto Udara" src={previewSrc} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent, transparent)", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "16px", color: "white" }}>
-              <p style={{ fontSize: "12px", fontWeight: 600, color: "#cbd5e1" }}>28 Mei 2026 • 09:40 WIB</p>
-              <h5 style={{ fontSize: "14px", fontWeight: 700 }}>Samarinda, Kalimantan Timur</h5>
+          {hasPhoto ? (
+            <div style={{ position: "relative", flex: 1, minHeight: "220px", borderRadius: "12px", overflow: "hidden", background: "#0f172a" }}>
+              <img alt="Preview Foto Udara" src={previewSrc} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent, transparent)", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "16px", color: "white" }}>
+                <p style={{ fontSize: "12px", fontWeight: 600, color: "#cbd5e1" }}>Foto berhasil dipilih</p>
+                <h5 style={{ fontSize: "14px", fontWeight: 700 }}>Siap dianalisis AIRWISE</h5>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="photo-empty-state">
+              <span>◎</span>
+              <strong>Belum ada foto</strong>
+              <small>Pilih foto kondisi langit untuk memulai analisis.</small>
+            </div>
+          )}
         </div>
       </div>
 
@@ -104,7 +110,7 @@ const KondisiFotoTab = () => {
       <div className="grid-12">
         {/* Hasil Analisis */}
         <div className="airwise-card col-span-5" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-          <div>
+          {hasPhoto && isSupportedPhoto ? <div>
             <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "16px", marginBottom: "16px" }}>Hasil Analisis</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div className="info-row">
@@ -128,12 +134,19 @@ const KondisiFotoTab = () => {
                 <span className="badge badge-amber-pill">Perlu Waspada</span>
               </div>
             </div>
-          </div>
           <div className="recommendation-box recommendation-box-warning">
             <p style={{ fontSize: "11px", color: "#78350f", fontWeight: 500 }}>
               ⚠️ <span style={{ fontWeight: 700 }}>Rekomendasi:</span> Hindari aktivitas luar ruangan terutama bagi kelompok sensitif. Gunakan masker bila mendesak bepergian.
             </p>
           </div>
+          </div> : hasPhoto ? <div className="analysis-empty-state">
+            <strong>Foto belum sesuai</strong>
+            <p>Foto dalam ruangan atau tanpa kondisi langit tidak dapat digunakan untuk analisis kualitas udara.</p>
+            <button type="button" onClick={triggerUpload}>Pilih Foto Lain</button>
+          </div> : <div className="analysis-empty-state">
+            <strong>Hasil analisis belum tersedia</strong>
+            <p>Upload foto kondisi langit terlebih dahulu. Data AQI akan muncul setelah foto berhasil diproses.</p>
+          </div>}
         </div>
 
         {/* Riwayat Analisis Foto */}

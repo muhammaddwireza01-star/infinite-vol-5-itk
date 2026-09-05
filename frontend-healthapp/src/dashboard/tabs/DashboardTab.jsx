@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 
-const DashboardTab = ({ onNavigate }) => {
+const DashboardTab = ({ location }) => {
   const [datetime, setDateTime] = useState(new Date());
+  const [photoReady] = useState(() => sessionStorage.getItem("airwise-photo-analysis-ready") === "true");
 
   const formatTime = (date) => {
     return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
@@ -56,7 +57,7 @@ const DashboardTab = ({ onNavigate }) => {
             Halo, Andi 👋
           </h2>
           <p style={{ fontSize: "14px", color: "#64748b" }}>
-            Berikut ringkasan kualitas udara di Samarinda, Kalimantan Timur.
+            Berikut ringkasan kualitas udara di {location.city}.
           </p>
         </div>
         <div style={{ textAlign: "left" }}>
@@ -88,10 +89,10 @@ const DashboardTab = ({ onNavigate }) => {
       </div>
 
       {/* Grid Row 1: Kondisi Udara & Analisis Foto */}
-      <div className="grid-12">
+      <div className="dashboard-top-stack">
         {/* Kondisi Udara di Sekitarmu */}
         <div
-          className="airwise-card col-span-8"
+          className="airwise-card"
           style={{
             display: "flex",
             flexDirection: "column",
@@ -105,32 +106,17 @@ const DashboardTab = ({ onNavigate }) => {
               marginBottom: "16px",
             }}>
             <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "16px" }}>
-              Kondisi Udara di Sekitarmu
+              Ambil Foto untuk Analisis Udara
             </h3>
-            <button
-              className="btn-amber"
-              onClick={() => onNavigate("kondisi-foto")}>
-              <svg
-                width="14"
-                height="14"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                viewBox="0 0 24 24">
-                <path
-                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Ambil Foto Baru
-            </button>
+            <p className="photo-analysis-hint">
+              Ambil foto kondisi langit agar hasil analisis kualitas udara lebih akurat.
+            </p>
           </div>
 
           {/* Skyline Image */}
-          <div className="skyline-container">
+          <div className={`skyline-container ${photoReady ? "" : "dashboard-photo-empty"}`}>
             <img
-              alt="Kondisi Skyline Samarinda"
+              alt={`Kondisi Skyline ${location.city}`}
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEc47AB4hecNNijMeWX3AgLrWXG5fdxKK4X3nDqxI3fTZVbPWkBJ6yB7lQr9ilMzBFLbEsbAyt2i36yyPGiZBao-SiU25N74Hqawim0bvY5_Ka8qaJrRQraVRtosAKQYRnKjh8MdQPspzKpe5F-6rAYlrleMjxVzcVsCTHZ069Rk4HToLhvoyV1KgIOehyJ9btqldsOwOSk3Lk9byJJyP4OWI7YcEOdWqjvYKbCUKxf4jD_Mehqft4"
             />
             <div className="skyline-overlay">
@@ -144,7 +130,7 @@ const DashboardTab = ({ onNavigate }) => {
                   fontWeight: 600,
                   letterSpacing: "0.025em",
                 }}>
-                Samarinda, Kalimantan Timur •{" "}
+                {location.city} •{" "}
                 <span style={{ color: "#fbbf24", fontWeight: 700 }}>
                   AQI 126
                 </span>
@@ -189,7 +175,7 @@ const DashboardTab = ({ onNavigate }) => {
 
         {/* Analisis Foto Card */}
         <div
-          className="airwise-card col-span-4"
+          className={`airwise-card dashboard-analysis-card ${photoReady ? "" : "dashboard-analysis-empty"}`}
           style={{
             display: "flex",
             flexDirection: "column",
@@ -269,7 +255,7 @@ const DashboardTab = ({ onNavigate }) => {
       </div>
 
       {/* Grid Row 2: Gauge & Line Chart */}
-      <div className="grid-12">
+      <div className="dashboard-summary-grid grid-12">
         {/* Gauge Card */}
         <div
           className="airwise-card col-span-5"
@@ -638,7 +624,7 @@ const DashboardTab = ({ onNavigate }) => {
       </div>
 
       {/* Grid Row 3: Perbandingan Wilayah & Hotspot Map */}
-      <div className="grid-12">
+      <div className="dashboard-comparison-grid grid-12">
         {/* Progress Bars */}
         <div className="airwise-card col-span-6">
           <div style={{ marginBottom: "16px" }}>

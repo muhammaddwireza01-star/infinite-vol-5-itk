@@ -1,13 +1,15 @@
 // FIX: Removed 'key' from component props
-const Card = ({ ilustration, title, desc }) => {
+const Card = ({ ilustration, title, desc, details = [] }) => {
   return (
     <div
-      className="flex flex-col gap-2 justify-start items-center flex-1 bg-[#CFEFED] p-5  rounded-xl"
+      className="landing-card"
       key={title}>
-      {/* FIX: Changed text-center to className="text-center" */}
-      <span className="text-center">{ilustration}</span>
-      <h3 className="text-xl text-center text-gray-900">{title}</h3>
-      <p className="text-center text-gray-800">{desc}</p>
+      <span className="card-icon">{ilustration}</span>
+      <h3>{title}</h3>
+      <p>{desc}</p>
+      <ul className="card-details">
+        {details.map((detail) => <li key={detail}>{detail}</li>)}
+      </ul>
     </div>
   );
 };
