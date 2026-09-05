@@ -58,8 +58,10 @@ const Navbar = () => {
         </ul>
       </div>
       <div className="navbar-end">
-        <Link to={"/login"} className="btn bg-[#10B1A3] border-none min-w-20">
-          Login
+        <Link
+          to={"/dashboard"}
+          className="btn bg-[#10B1A3] border-none min-w-20">
+          Dashboard
         </Link>
       </div>
     </nav>
