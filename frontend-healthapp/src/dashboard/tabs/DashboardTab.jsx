@@ -2,8 +2,96 @@ import { useState, useEffect } from "react";
 
 const DashboardTab = ({ location }) => {
   const [datetime, setDateTime] = useState(new Date());
-  const [photoReady] = useState(() => sessionStorage.getItem("airwise-photo-analysis-ready") === "true");
+  const [uploadedPhoto, setUploadedPhoto] = useState(() => sessionStorage.getItem("airwise-uploaded-photo"));
+  const [photoAnalysis, setPhotoAnalysis] = useState(() => {
+    const data = sessionStorage.getItem("airwise-photo-analysis-result");
+    return data ? JSON.parse(data) : null;
+  });
+  const photoReady = uploadedPhoto !== null;
   const userName = sessionStorage.getItem("airwise-user-name") || "Andi";
+
+  const [aqiData, setAqiData] = useState(null);
+  const [historyData, setHistoryData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const handlePhotoUpdate = () => {
+      setUploadedPhoto(sessionStorage.getItem("airwise-uploaded-photo"));
+      const resultData = sessionStorage.getItem("airwise-photo-analysis-result");
+      setPhotoAnalysis(resultData ? JSON.parse(resultData) : null);
+    };
+    window.addEventListener("airwise-photo-updated", handlePhotoUpdate);
+    return () => window.removeEventListener("airwise-photo-updated", handlePhotoUpdate);
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [aqiRes, histRes] = await Promise.all([
+          fetch(`http://localhost:5000/api/get_data_aqi?region=${location.city}`),
+          fetch(`http://localhost:5000/api/history?region=${location.city}`)
+        ]);
+        const aqiJson = await aqiRes.json();
+        const histJson = await histRes.json();
+        if (aqiJson.status === "success") {
+          setAqiData(aqiJson.data);
+        }
+        if (histJson.status === "success") {
+          setHistoryData(histJson.data);
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, [location.city]);
+
+  const displayAqi = photoAnalysis?.aqi ?? (aqiData?.aqi_score ?? 126);
+  const displayKategori = photoAnalysis?.status_label ?? (aqiData?.status_kategori ?? "Tidak Sehat bagi Kelompok Sensitif");
+  const displaySaran = photoAnalysis?.rekomendasi ?? (aqiData?.saran_kesehatan ?? "Hindari aktivitas luar ruangan terutama bagi kelompok sensitif seperti anak-anak dan lansia.");
+  const displayVisibilitas = photoAnalysis?.visibilitas ?? (aqiData?.visibilitas ?? "Rendah");
+  const displayKejernihan = photoAnalysis?.kejernihan_langit ?? (aqiData?.kejernihan_langit ?? "Buruk");
+  const displayStatusAnalisis = photoAnalysis?.status ?? (aqiData?.status_analisis ?? "Perlu Waspada");
+  const displayWarna = photoAnalysis?.status_color ?? (aqiData?.kode_warna ?? "#ea580c");
+  
+  const mappedPerbandingan = aqiData?.perbandingan?.map(item => ({
+    name: item.wilayah,
+    value: item.aqi,
+    pct: `${Math.min(100, (item.aqi / 200) * 100)}%`,
+    color: item.kode_warna,
+    textColor: item.kode_warna,
+  })) ?? [
+    { name: "Samarinda", value: 75, pct: "37.5%", color: "#eab308", textColor: "#ca8a04" },
+    { name: "Tarakan", value: 71, pct: "35.5%", color: "#eab308", textColor: "#ca8a04" },
+    { name: "Bontang", value: 67, pct: "33.5%", color: "#eab308", textColor: "#ca8a04" },
+    { name: "Singkawang", value: 63, pct: "31.5%", color: "#eab308", textColor: "#ca8a04" },
+    { name: "Palangka Raya", value: 63, pct: "31.5%", color: "#eab308", textColor: "#ca8a04" },
+    { name: "Pontianak", value: 62, pct: "31%", color: "#eab308", textColor: "#ca8a04" },
+    { name: "Balikpapan", value: 58, pct: "29%", color: "#eab308", textColor: "#ca8a04" },
+    { name: "Banjarmasin", value: 55, pct: "27.5%", color: "#eab308", textColor: "#ca8a04" },
+    { name: "Banjarbaru", value: 55, pct: "27.5%", color: "#eab308", textColor: "#ca8a04" },
+  ];
+
+  const getChartPoints = () => {
+    if (!historyData || !historyData.data_per_jam) {
+      return [86, 92, 110, 126, 118, 104, 90, 86];
+    }
+    const data = historyData.data_per_jam;
+    const getVal = (jam) => data.find(d => d.jam === jam)?.aqi || 50;
+    return [
+      getVal("02:00"), getVal("04:00"), getVal("06:00"), getVal("09:00"),
+      getVal("11:00"), getVal("14:00"), getVal("16:00"), getVal("19:00")
+    ];
+  };
+  
+  const chartX = [40, 100, 165, 230, 295, 360, 420, 470];
+  const chartPoints = getChartPoints();
+  const maxVal = Math.max(150, ...chartPoints);
+  const scaleY = (val) => 130 - (val / maxVal) * 110;
+  const polylinePoints = chartX.map((x, i) => `${x},${scaleY(chartPoints[i])}`).join(" ");
+  const polygonPoints = `${chartX[0]},${scaleY(chartPoints[0])} ` + polylinePoints + ` ${chartX[7]},130 ${chartX[0]},130`;
 
   const formatTime = (date) => {
     return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
@@ -72,22 +160,23 @@ const DashboardTab = ({ location }) => {
       </div>
 
       {/* Alert Banner */}
-      <div className="alert-banner">
-        <div className="alert-icon">!</div>
-        <div>
-          <h4 style={{ fontWeight: 700, color: "#78350f", fontSize: "14px" }}>
-            KONDISI SAAT INI:{" "}
-            <span
-              style={{ fontSize: "16px", fontWeight: 800, marginLeft: "4px" }}>
-              Perlu Waspada
-            </span>
-          </h4>
-          <p style={{ fontSize: "13px", color: "#92400e", marginTop: "2px" }}>
-            Kondisi udara saat ini terasa tidak sehat bagi kelompok sensitif.
-            Aktivitas luar ruangan yang berat sebaiknya dikurangi.
-          </p>
+      {photoAnalysis && (
+        <div className="alert-banner">
+          <div className="alert-icon">!</div>
+          <div>
+            <h4 style={{ fontWeight: 700, color: "#78350f", fontSize: "14px" }}>
+              KONDISI SAAT INI:{" "}
+              <span
+                style={{ fontSize: "16px", fontWeight: 800, marginLeft: "4px" }}>
+                {displayStatusAnalisis}
+              </span>
+            </h4>
+            <p style={{ fontSize: "13px", color: "#92400e", marginTop: "2px" }}>
+              {displaySaran}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Grid Row 1: Kondisi Udara & Analisis Foto */}
       <div className="dashboard-top-stack">
@@ -118,7 +207,7 @@ const DashboardTab = ({ location }) => {
           <div className={`skyline-container ${photoReady ? "" : "dashboard-photo-empty"}`}>
             <img
               alt={`Kondisi Skyline ${location.city}`}
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEc47AB4hecNNijMeWX3AgLrWXG5fdxKK4X3nDqxI3fTZVbPWkBJ6yB7lQr9ilMzBFLbEsbAyt2i36yyPGiZBao-SiU25N74Hqawim0bvY5_Ka8qaJrRQraVRtosAKQYRnKjh8MdQPspzKpe5F-6rAYlrleMjxVzcVsCTHZ069Rk4HToLhvoyV1KgIOehyJ9btqldsOwOSk3Lk9byJJyP4OWI7YcEOdWqjvYKbCUKxf4jD_Mehqft4"
+              src={uploadedPhoto || "https://lh3.googleusercontent.com/aida-public/AB6AXuDEc47AB4hecNNijMeWX3AgLrWXG5fdxKK4X3nDqxI3fTZVbPWkBJ6yB7lQr9ilMzBFLbEsbAyt2i36yyPGiZBao-SiU25N74Hqawim0bvY5_Ka8qaJrRQraVRtosAKQYRnKjh8MdQPspzKpe5F-6rAYlrleMjxVzcVsCTHZ069Rk4HToLhvoyV1KgIOehyJ9btqldsOwOSk3Lk9byJJyP4OWI7YcEOdWqjvYKbCUKxf4jD_Mehqft4"}
             />
             <div className="skyline-overlay">
               <p
@@ -132,8 +221,8 @@ const DashboardTab = ({ location }) => {
                   letterSpacing: "0.025em",
                 }}>
                 {location.city} •{" "}
-                <span style={{ color: "#fbbf24", fontWeight: 700 }}>
-                  AQI 126
+                <span style={{ color: displayWarna, fontWeight: 700 }}>
+                  AQI {displayAqi}
                 </span>
               </h4>
             </div>
@@ -170,7 +259,7 @@ const DashboardTab = ({ location }) => {
                 <span style={{ color: "#64748b", fontSize: "12px" }}>
                   Indeks Polusi / AQI
                 </span>
-                <span className="badge badge-red">126</span>
+                <span className="badge badge-red" style={{ backgroundColor: displayWarna }}>{displayAqi}</span>
               </div>
               <div className="info-row">
                 <span style={{ color: "#64748b", fontSize: "12px" }}>
@@ -182,7 +271,7 @@ const DashboardTab = ({ location }) => {
                     color: "#1e293b",
                     fontSize: "12px",
                   }}>
-                  Rendah
+                  {displayVisibilitas}
                 </span>
               </div>
               <div className="info-row">
@@ -192,17 +281,17 @@ const DashboardTab = ({ location }) => {
                 <span
                   style={{
                     fontWeight: 600,
-                    color: "#dc2626",
+                    color: displayWarna,
                     fontSize: "12px",
                   }}>
-                  Buruk
+                  {displayKejernihan}
                 </span>
               </div>
               <div className="info-row">
                 <span style={{ color: "#64748b", fontSize: "12px" }}>
                   Status
                 </span>
-                <span className="badge badge-amber-pill">Perlu Waspada</span>
+                <span className="badge badge-amber-pill" style={{ borderColor: displayWarna, color: displayWarna }}>{displayStatusAnalisis}</span>
               </div>
             </div>
           </div>
@@ -215,8 +304,7 @@ const DashboardTab = ({ location }) => {
                 fontWeight: 500,
               }}>
               💡 <span style={{ fontWeight: 600 }}>Saran Kesehatan:</span>{" "}
-              Hindari aktivitas luar ruangan terutama bagi kelompok sensitif
-              seperti anak-anak dan lansia.
+              {displaySaran}
             </p>
           </div>
         </div>
@@ -268,7 +356,9 @@ const DashboardTab = ({ location }) => {
                 className="gauge-fill"
                 d="M 20 80 A 60 60 0 0 1 140 80"
                 fill="none"
-                stroke="#ea580c"
+                stroke={displayWarna}
+                strokeDasharray="188.5"
+                strokeDashoffset={188.5 - (Math.min(200, displayAqi) / 200) * 188.5}
                 strokeLinecap="round"
                 strokeWidth="14"
               />
@@ -286,7 +376,7 @@ const DashboardTab = ({ location }) => {
                   color: "#0f172a",
                   lineHeight: 1,
                 }}>
-                126
+                {displayAqi}
               </span>
               <span
                 style={{
@@ -304,11 +394,11 @@ const DashboardTab = ({ location }) => {
           <p
             style={{
               fontWeight: 700,
-              color: "#b45309",
+              color: displayWarna,
               fontSize: "13px",
               marginTop: "4px",
             }}>
-            Tidak Sehat bagi Kelompok Sensitif
+            {displayKategori}
           </p>
 
           {/* AQI Legend */}
@@ -428,7 +518,7 @@ const DashboardTab = ({ location }) => {
               />
               <polyline
                 fill="none"
-                points="40,95 100,85 165,55 230,25 295,40 360,65 420,90 470,95"
+                points={polylinePoints}
                 stroke="#f97316"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -436,157 +526,42 @@ const DashboardTab = ({ location }) => {
               />
               <polygon
                 fill="rgba(249, 115, 22, 0.08)"
-                points="40,95 100,85 165,55 230,25 295,40 360,65 420,90 470,95 470,130 40,130"
+                points={polygonPoints}
               />
-              {/* Data Points */}
-              <circle
-                cx="40"
-                cy="95"
-                r="4"
-                fill="#ffffff"
-                stroke="#f97316"
-                strokeWidth="2.5"
-              />
-              <text
-                x="40"
-                y="86"
-                fill="#475569"
-                fontSize="9"
-                fontWeight="bold"
-                textAnchor="middle">
-                86
-              </text>
-              <circle
-                cx="100"
-                cy="85"
-                r="4"
-                fill="#ffffff"
-                stroke="#f97316"
-                strokeWidth="2.5"
-              />
-              <text
-                x="100"
-                y="76"
-                fill="#475569"
-                fontSize="9"
-                fontWeight="bold"
-                textAnchor="middle">
-                92
-              </text>
-              <circle
-                cx="165"
-                cy="55"
-                r="4"
-                fill="#ffffff"
-                stroke="#f97316"
-                strokeWidth="2.5"
-              />
-              <text
-                x="165"
-                y="46"
-                fill="#475569"
-                fontSize="9"
-                fontWeight="bold"
-                textAnchor="middle">
-                110
-              </text>
-              <circle
-                cx="230"
-                cy="25"
-                r="5"
-                fill="#f97316"
-                stroke="#ffffff"
-                strokeWidth="2"
-              />
-              <text
-                x="230"
-                y="16"
-                fill="#ea580c"
-                fontSize="10"
-                fontWeight="800"
-                textAnchor="middle">
-                126
-              </text>
-              <circle
-                cx="295"
-                cy="40"
-                r="4"
-                fill="#ffffff"
-                stroke="#f97316"
-                strokeWidth="2.5"
-              />
-              <text
-                x="295"
-                y="32"
-                fill="#475569"
-                fontSize="9"
-                fontWeight="bold"
-                textAnchor="middle">
-                118
-              </text>
-              <circle
-                cx="360"
-                cy="65"
-                r="4"
-                fill="#ffffff"
-                stroke="#f97316"
-                strokeWidth="2.5"
-              />
-              <text
-                x="360"
-                y="56"
-                fill="#475569"
-                fontSize="9"
-                fontWeight="bold"
-                textAnchor="middle">
-                104
-              </text>
-              <circle
-                cx="420"
-                cy="90"
-                r="4"
-                fill="#ffffff"
-                stroke="#f97316"
-                strokeWidth="2.5"
-              />
-              <text
-                x="420"
-                y="81"
-                fill="#475569"
-                fontSize="9"
-                fontWeight="bold"
-                textAnchor="middle">
-                90
-              </text>
-              <circle
-                cx="470"
-                cy="95"
-                r="4"
-                fill="#ffffff"
-                stroke="#f97316"
-                strokeWidth="2.5"
-              />
-              <text
-                x="470"
-                y="86"
-                fill="#475569"
-                fontSize="9"
-                fontWeight="bold"
-                textAnchor="middle">
-                86
-              </text>
+              {/* Data Points dynamically rendered */}
+              {chartPoints.map((val, i) => (
+                <g key={`pt-${i}`}>
+                  <circle
+                    cx={chartX[i]}
+                    cy={scaleY(val)}
+                    r={val === Math.max(...chartPoints) ? "5" : "4"}
+                    fill={val === Math.max(...chartPoints) ? "#f97316" : "#ffffff"}
+                    stroke={val === Math.max(...chartPoints) ? "#ffffff" : "#f97316"}
+                    strokeWidth={val === Math.max(...chartPoints) ? "2" : "2.5"}
+                  />
+                  <text
+                    x={chartX[i]}
+                    y={scaleY(val) - 9}
+                    fill={val === Math.max(...chartPoints) ? "#ea580c" : "#475569"}
+                    fontSize={val === Math.max(...chartPoints) ? "10" : "9"}
+                    fontWeight={val === Math.max(...chartPoints) ? "800" : "bold"}
+                    textAnchor="middle">
+                    {val}
+                  </text>
+                </g>
+              ))}
             </svg>
           </div>
 
           <div className="chart-time-labels">
-            <span>00:00</span>
-            <span>03:00</span>
+            <span>02:00</span>
+            <span>04:00</span>
             <span>06:00</span>
             <span style={{ color: "#d97706", fontWeight: 700 }}>09:00</span>
-            <span>12:00</span>
-            <span>15:00</span>
-            <span>18:00</span>
-            <span>21:00</span>
+            <span>11:00</span>
+            <span>14:00</span>
+            <span>16:00</span>
+            <span>19:00</span>
           </div>
         </div>
       </div>
@@ -605,43 +580,7 @@ const DashboardTab = ({ location }) => {
           </div>
           <div
             style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-            {[
-              {
-                name: "Samarinda",
-                value: 126,
-                pct: "70%",
-                color: "#f59e0b",
-                textColor: "#d97706",
-              },
-              {
-                name: "Balikpapan",
-                value: 92,
-                pct: "52%",
-                color: "#facc15",
-                textColor: "#ca8a04",
-              },
-              {
-                name: "Bontang",
-                value: 58,
-                pct: "38%",
-                color: "#84cc16",
-                textColor: "#16a34a",
-              },
-              {
-                name: "Kutai Kartanegara",
-                value: 46,
-                pct: "28%",
-                color: "#22c55e",
-                textColor: "#16a34a",
-              },
-              {
-                name: "Berau",
-                value: 38,
-                pct: "22%",
-                color: "#4ade80",
-                textColor: "#16a34a",
-              },
-            ].map((item) => (
+            {mappedPerbandingan.map((item) => (
               <div key={item.name}>
                 <div
                   style={{

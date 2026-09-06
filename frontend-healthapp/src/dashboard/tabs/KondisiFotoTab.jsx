@@ -9,6 +9,10 @@ const KondisiFotoTab = () => {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState("");
+  const [historyItems, setHistoryItems] = useState(() => {
+    const saved = localStorage.getItem("airwise-history-items");
+    return saved ? JSON.parse(saved) : [];
+  });
   const fileInputRef = useRef(null);
 
   const handleImageUpload = (e) => {
@@ -19,7 +23,11 @@ const KondisiFotoTab = () => {
       setAnalysisResult(null);
       setAnalysisError("");
       const reader = new FileReader();
-      reader.onload = (ev) => setPreviewSrc(ev.target.result);
+      reader.onload = (ev) => {
+        setPreviewSrc(ev.target.result);
+        sessionStorage.setItem("airwise-uploaded-photo", ev.target.result);
+        window.dispatchEvent(new Event("airwise-photo-updated"));
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -47,6 +55,28 @@ const KondisiFotoTab = () => {
       }
 
       setAnalysisResult(json.data);
+      sessionStorage.setItem("airwise-photo-analysis-result", JSON.stringify(json.data));
+      window.dispatchEvent(new Event("airwise-photo-updated"));
+
+      const now = new Date();
+      const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+      const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} • ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+      
+      const newHistoryItem = {
+        id: Date.now(),
+        date: dateStr,
+        aqi: json.data.aqi,
+        status: json.data.status,
+        statusBg: json.data.status_bg,
+        statusColor: json.data.status_color,
+        img: previewSrc
+      };
+
+      setHistoryItems(prev => {
+        const updated = [newHistoryItem, ...prev];
+        localStorage.setItem("airwise-history-items", JSON.stringify(updated));
+        return updated;
+      });
     } catch (err) {
       console.error("Analisis gagal:", err);
       setAnalysisError(
@@ -61,40 +91,13 @@ const KondisiFotoTab = () => {
 
   const triggerUpload = () => fileInputRef.current?.click();
 
-  const historyItems = [
-    {
-      date: "28 Mei 2026 • 09:40",
-      aqi: 126,
-      status: "Perlu Waspada",
-      statusBg: "#fef3c7",
-      statusColor: "#92400e",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAtjC4oEaXn_6sGHaw4htDB-a10E8bnupmyk7spJfcGjqzXhXUGeiwXuwPif5kWNZefATRhDMVdVRS4ZOWAbnnlpjX8MH0vzk5Ov9ptigREh6au4WKwoI8o5djFwF0tCzaTCenAoGGWIzy7n2JXbiuxgA21XEl-3bQZIBpwfFdEG6enz9jn5fHN3FrQfHWUyoH_C-vfrniOLPgBVSsSOHVZkq1V8zSroVoM73BOzAriaD6XMLF3DEWO",
-    },
-    {
-      date: "27 Mei 2026 • 16:30",
-      aqi: 104,
-      status: "Tidak Sehat bagi Sensitif",
-      statusBg: "#fef3c7",
-      statusColor: "#92400e",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCE7bROKBZvpWzCSwZ6bUeVo8KxdvnpKcpzCNewsdQsRpKucSOA0L4Jm-PwT9GzFrW5YQbvDK3fFdldOu7rjAqFLSothNvMezRSdXiBykGQ1d3c0Hhvb_40RbMO4T4tH68tDEbVtmvQDDLdkZDbbbKDn6PlLpo9DqtayOQdQhsXFXKH5fPi9RCGCPwgweKsQ-RTcMBA-AFlldQgY6S-342hRVPRk3d19UMCCUnptsD4KyqEplist7om",
-    },
-    {
-      date: "27 Mei 2026 • 08:15",
-      aqi: 82,
-      status: "Sedang",
-      statusBg: "#fef9c3",
-      statusColor: "#854d0e",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDp9C3hD_govzawEwrsdomx61jbe6g4_YLKtayAejANrXv3lSCTC-xzWMneUmkqLrDIgIYYz624reYIfU9uqs4b84S4CfPzLt0lHRbUkAwWocxZrVzG_HlO5LK4RMQBTxTIySRW1ovZL0IeagwyPOR87zqdIzqFBDhwq09azSRN7FTrg5QVNGRf84Kd-sYtI8993WrH7UGmDmAvd1175aYRKeDGCbUSEHBIgm4llFgdBkfCmXYhGWXK",
-    },
-    {
-      date: "26 Mei 2026 • 18:30",
-      aqi: 58,
-      status: "Baik",
-      statusBg: "#dcfce7",
-      statusColor: "#15803d",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuB9DI5SCrtWLj-8zuYZTGGH2eCaNgSsmCbmW_Mp_uKpSHLQRbSv8ATG3lnD7uzOv2ruGyfndnlE_VJYyIeIWaG1KUnFbqlhb003eFYc36cRKWDCPiP3Tnyy4iqAc8S0PILOqp8uEZBeOKzwOMXRrHNZGdVfC91rqz26MtbWIXhzQQooezLg4L0V0_KGFPzm0hg1uANr2tfO3UG0pqtmOFcxs-3hby4pOXMjhVA-DU995SeoYXE7ZxFT",
-    },
-  ];
+  const deleteHistoryItem = (id) => {
+    setHistoryItems(prev => {
+      const updated = prev.filter(item => item.id !== id);
+      localStorage.setItem("airwise-history-items", JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   // Helper: badge color berdasarkan AQI
   const getAqiBadgeClass = (aqi) => {
@@ -322,20 +325,35 @@ const KondisiFotoTab = () => {
           <div style={{ marginBottom: "12px" }}>
             <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "16px", marginBottom: "12px" }}>Riwayat Analisis Foto</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {historyItems.map((item, i) => (
-                <div key={i} className="history-item">
-                  <img alt="Thumb" src={item.img} />
-                  <div style={{ flex: 1 }}>
-                    <span style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 500 }}>{item.date}</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span style={{ fontSize: "12px", fontWeight: 700, color: "#1e293b" }}>AQI {item.aqi}</span>
-                      <span style={{ fontSize: "10px", background: item.statusBg, color: item.statusColor, fontWeight: 600, padding: "2px 8px", borderRadius: "4px" }}>
-                        {item.status}
-                      </span>
+              {historyItems.length > 0 ? historyItems.map((item) => (
+                <div key={item.id} className="history-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+                    <img alt="Thumb" src={item.img} style={{ width: '56px', height: '48px', objectFit: 'cover', borderRadius: '8px' }} />
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 500 }}>{item.date}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ fontSize: "12px", fontWeight: 700, color: "#1e293b" }}>AQI {item.aqi}</span>
+                        <span style={{ fontSize: "10px", background: item.statusBg, color: item.statusColor, fontWeight: 600, padding: "2px 8px", borderRadius: "4px" }}>
+                          {item.status}
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  <button 
+                    onClick={() => deleteHistoryItem(item.id)}
+                    style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }}
+                    title="Hapus riwayat"
+                  >
+                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
                 </div>
-              ))}
+              )) : (
+                <div style={{ textAlign: "center", padding: "32px 16px", color: "#94a3b8", fontSize: "12px", background: "#f8fafc", borderRadius: "12px", border: "1px dashed #cbd5e1" }}>
+                  Belum ada riwayat analisis.<br/>Upload foto untuk mulai menyimpan riwayat.
+                </div>
+              )}
             </div>
           </div>
           <button className="btn-primary-airwise" style={{ width: "100%", background: "#1b8a5a", marginTop: "12px" }}>

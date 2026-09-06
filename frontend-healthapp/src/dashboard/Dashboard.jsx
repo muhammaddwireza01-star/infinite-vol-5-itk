@@ -9,7 +9,9 @@ import TentangTab from "./tabs/TentangTab";
 import { defaultCity } from "../data/regions";
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState(() => {
+    return sessionStorage.getItem("airwise-active-tab") || "dashboard";
+  });
   const [location, setLocation] = useState(() => ({
     city: sessionStorage.getItem("airwise-city") || defaultCity,
   }));
@@ -21,30 +23,30 @@ const Dashboard = () => {
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
+    sessionStorage.setItem("airwise-active-tab", tabId);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const renderTab = () => {
-    switch (activeTab) {
-      case "dashboard":
-        return <DashboardTab location={location} />;
-      case "kondisi-foto":
-        return <KondisiFotoTab />;
-      case "pola-tren":
-        return <PolaTrenTab />;
-      case "edukasi":
-        return <EdukasiTab />;
-      case "tentang":
-        return <TentangTab />;
-      default:
-        return <DashboardTab location={location} />;
-    }
   };
 
   return (
     <div className="dashboard-shell">
       <Sidebar activeTab={activeTab} onTabChange={handleTabChange} {...location} onLocationChange={handleLocationChange} />
-      <main className="dashboard-main">{renderTab()}</main>
+      <main className="dashboard-main">
+        <div style={{ display: activeTab === "dashboard" ? "block" : "none" }}>
+          <DashboardTab location={location} />
+        </div>
+        <div style={{ display: activeTab === "kondisi-foto" ? "block" : "none" }}>
+          <KondisiFotoTab />
+        </div>
+        <div style={{ display: activeTab === "pola-tren" ? "block" : "none" }}>
+          <PolaTrenTab />
+        </div>
+        <div style={{ display: activeTab === "edukasi" ? "block" : "none" }}>
+          <EdukasiTab />
+        </div>
+        <div style={{ display: activeTab === "tentang" ? "block" : "none" }}>
+          <TentangTab />
+        </div>
+      </main>
     </div>
   );
 };
