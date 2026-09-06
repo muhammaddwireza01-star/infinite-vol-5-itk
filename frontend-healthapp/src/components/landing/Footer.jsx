@@ -2,7 +2,14 @@ const Footer = () => {
   return (
     <footer id="contact" className="landing-footer">
       <div className="footer-main">
-        <div className="footer-brand"><strong>AIRWISE</strong><small>Kualitas Udara, Hidup Lebih Sehat</small><p>Platform cerdas untuk pemantauan dan analisis kualitas udara demi hidup yang lebih sehat.</p></div>
+        <div className="footer-brand">
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+            <img src="/src/assets/logo.jpg" alt="AIRWISE Logo" style={{ width: 32, height: 32, borderRadius: 8 }} />
+            <strong>AIRWISE</strong>
+          </div>
+          <small>Kualitas Udara, Hidup Lebih Sehat</small>
+          <p>Platform cerdas untuk pemantauan dan analisis kualitas udara demi hidup yang lebih sehat.</p>
+        </div>
         <div className="footer-column"><strong>Jelajahi</strong><a href="#home">Beranda</a><a href="#features">Fitur</a><a href="#solutions">Edukasi</a><a href="#about">Tentang</a><a href="#contact">Kontak</a></div>
         <div className="footer-column"><strong>Hubungi Kami</strong><span>✉ airwise.app@gmail.com</span><span>● +62 812 3456 7890</span><span>⌖ Samarinda, Kalimantan Timur</span></div>
       </div>

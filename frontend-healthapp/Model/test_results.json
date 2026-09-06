@@ -1,0 +1,23 @@
+{
+  "test_loss": 2.0080,
+  "test_aqi_mse": 0.0380,
+  "test_aqi_mae_normalized": 0.1593,
+  "test_aqi_mae_actual": 23.902,
+  "test_visibility_accuracy": 73.429,
+  "test_clarity_accuracy": 71.095,
+  "test_color_accuracy": 66.786,
+  "training_time_minutes": 132.0,
+  "best_epoch": 27,
+  "total_epochs_trained": 30,
+  "dataset_info": {
+    "total_samples": 3712,
+    "train_samples": 2598,
+    "val_samples": 557,
+    "test_samples": 557,
+    "aqi_min": 0,
+    "aqi_max": 150,
+    "num_visibility_classes": 3,
+    "num_clarity_classes": 3,
+    "num_color_classes": 4
+  }
+}

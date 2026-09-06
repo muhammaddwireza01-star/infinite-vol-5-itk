@@ -8,7 +8,7 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { cities, defaultCity } from "../data/region";
+import { cities, defaultCity } from "../data/regions";
 import "./Login.css";
 
 const Login = () => {
@@ -38,10 +38,12 @@ const Login = () => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email");
+    const name = formData.get("name") || email.split("@")[0];
     const selectedCity = formData.get("city");
 
     sessionStorage.setItem("airwise-authenticated", "true");
     sessionStorage.setItem("airwise-user-email", email);
+    sessionStorage.setItem("airwise-user-name", name);
     sessionStorage.setItem("airwise-city", selectedCity);
     navigate("/dashboard", { replace: true });
   };
@@ -53,7 +55,9 @@ const Login = () => {
           <FaArrowLeft /> Kembali ke beranda
         </Link>
         <div className="auth-visual-content">
-          <div className="auth-logo-mark">◒</div>
+          <div className="auth-logo-mark" style={{ background: "transparent", color: "inherit", width: 64, height: 64, border: "none" }}>
+            <img src="/src/assets/logo.jpg" alt="AIRWISE Logo" style={{ width: "100%", height: "100%", borderRadius: 16 }} />
+          </div>
           <strong>AIRWISE</strong>
           <small>Kualitas Udara, Hidup Lebih Sehat</small>
           <h2>

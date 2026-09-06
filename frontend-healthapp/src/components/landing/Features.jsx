@@ -52,24 +52,24 @@ const Features = () => {
           />
         ))}
         <div className="feature-stats">
-          <span className="eyebrow text-xs">AIRWISE DALAM ANGKA</span>
+          <span className="eyebrow">AIRWISE DALAM ANGKA</span>
           <div>
-            <strong className="text-[1rem]">20+</strong>
-            <small className="text-[10px]">Kota Dipantau</small>
+            <strong>20+</strong>
+            <small>Kota Dipantau</small>
           </div>
           <div>
-            <strong className="text-[1rem]">15K+</strong>
-            <small className="text-[10px]">Pengguna Aktif</small>
+            <strong>15K+</strong>
+            <small>Pengguna Aktif</small>
           </div>
           <div>
-            <strong className="text-[1rem]">99%</strong>
-            <small className="text-[10px]">Akurasi Data</small>
+            <strong>99%</strong>
+            <small>Akurasi Data</small>
           </div>
           <div>
-            <strong className="text-[1rem]">24/7</strong>
-            <smal className="text-[10px]" l>
+            <strong>24/7</strong>
+            <small>
               Pemantauan
-            </smal>
+            </small>
           </div>
         </div>
       </div>

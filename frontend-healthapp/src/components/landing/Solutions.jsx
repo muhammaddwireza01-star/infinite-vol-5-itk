@@ -35,9 +35,10 @@ const Solutions = () => {
   ];
 
   return (
-    <section
-      id="solutions"
-      className="landing-section solutions-section  py-30">
+    <>
+      <section
+        id="solutions"
+        className="landing-section solutions-section py-30">
       <div className="flex flex-col gap-4 items-center">
         <span className="eyebrow text-xs">LEBIH PAHAM, LEBIH SEHAT</span>
         <h2 className="text-4xl">
@@ -90,7 +91,8 @@ const Solutions = () => {
           </a>
         </div>
       </div>
-    </section>
+      </section>
+    </>
   );
 };
 
