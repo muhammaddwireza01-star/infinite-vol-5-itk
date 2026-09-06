@@ -48,11 +48,11 @@ const TentangTab = () => {
 
           {/* Decorative emojis */}
           <div style={{ marginTop: "24px", display: "flex", alignItems: "flex-end", justifyContent: "center", gap: "24px", opacity: 0.6 }}>
-            <span style={{ fontSize: "24px" }}>🌱</span>
-            <span style={{ fontSize: "32px" }}>🏙️</span>
-            <span style={{ fontSize: "40px" }}>🍃</span>
-            <span style={{ fontSize: "32px" }}>🏞️</span>
-            <span style={{ fontSize: "24px" }}>🌳</span>
+            <span style={{ fontSize: "24px" }}></span>
+            <span style={{ fontSize: "32px" }}></span>
+            <span style={{ fontSize: "40px" }}></span>
+            <span style={{ fontSize: "32px" }}></span>
+            <span style={{ fontSize: "24px" }}></span>
           </div>
         </div>
 
@@ -61,11 +61,11 @@ const TentangTab = () => {
           <h4 style={{ fontWeight: 700, color: "#1e293b", fontSize: "14px", marginBottom: "16px" }}>Fitur AIRWISE</h4>
           <div className="features-grid">
             {[
-              { emoji: "🧭", label: "Pemantauan", sub: "Kualitas Udara" },
-              { emoji: "📷", label: "Analisis Foto", sub: "Kondisi Udara" },
-              { emoji: "📈", label: "Pola & Tren", sub: "AQI Interaktif" },
-              { emoji: "📗", label: "Edukasi", sub: "Kesehatan Paru" },
-              { emoji: "📍", label: "Informasi", sub: "Hotspot Satelit" },
+              { emoji: "", label: "Pemantauan", sub: "Kualitas Udara" },
+              { emoji: "", label: "Analisis Foto", sub: "Kondisi Udara" },
+              { emoji: "", label: "Pola & Tren", sub: "AQI Interaktif" },
+              { emoji: "", label: "Edukasi", sub: "Kesehatan Paru" },
+              { emoji: "", label: "Informasi", sub: "Hotspot Satelit" },
             ].map((f, i) => (
               <div key={i} className="feature-grid-card">
                 <div style={{ fontSize: "24px", marginBottom: "6px" }}>{f.emoji}</div>
@@ -111,9 +111,9 @@ const TentangTab = () => {
             <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "16px", marginBottom: "16px" }}>Kebijakan &amp; Bantuan</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {[
-                { icon: "📄", label: "Kebijakan Privasi" },
-                { icon: "⚖️", label: "Syarat & Ketentuan" },
-                { icon: "💬", label: "Pusat Bantuan" },
+                { icon: "", label: "Kebijakan Privasi" },
+                { icon: "", label: "Syarat & Ketentuan" },
+                { icon: "", label: "Pusat Bantuan" },
               ].map((item, i) => (
                 <a key={i} href="#" className="policy-link">
                   <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>

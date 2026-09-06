@@ -1,23 +1,4 @@
-from database import db
-
-class Region(db.Model):
-    __tablename__ = "regions"
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True, nullable=False)
-
-    # Satu region dapat memiliki banyak user
-    users = db.relationship(
-        "User",
-        back_populates="region",
-        lazy=True
-    )
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name
-        }
+from database.db import db
 
 
 class User(db.Model):

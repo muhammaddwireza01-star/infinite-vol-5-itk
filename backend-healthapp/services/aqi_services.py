@@ -187,25 +187,13 @@ def get_aqi_history_for_region(region_name):
     """
     Mengambil histori ISPU per jam untuk kebutuhan grafik.
 
-    Rentang grafik yang digunakan:
-        02:00 sampai 19:00
-
     Catatan:
     - Fungsi hanya menggunakan data yang benar-benar tersedia di CSV.
-    - Jika suatu jam belum mempunyai data, jam tersebut tetap dikembalikan
-      dengan nilai None agar frontend mengetahui bahwa titik tersebut kosong.
     - Tidak ada nilai ISPU yang dibuat-buat/diestimasi di layer service.
       Nilai histori harus berasal dari CSV atau sumber data histori yang valid.
     """
     target_region = _normalize_region(region_name)
-
-    # Jam yang memang dibutuhkan oleh grafik.
-    target_intervals = [
-        f"{hour:02d}:00"
-        for hour in range(2, 20)
-    ]
-
-    history_by_hour = {}
+    history_by_timestamp = {}
     tanggal_histori = ""
 
     try:
@@ -215,18 +203,18 @@ def get_aqi_history_for_region(region_name):
             kota = row.get("Kota", "").strip().title()
             jam = row.get("Jam Histori", "").strip()
 
-            if (
-                _normalize_region(kota) != target_region
-                or jam not in target_intervals
-            ):
+            if _normalize_region(kota) != target_region or not jam:
                 continue
 
             # Ambil tanggal histori dari data yang cocok.
             if not tanggal_histori:
                 tanggal_histori = row.get("Tanggal Histori", "").strip()
 
-            # Jika terdapat duplikasi jam, gunakan baris pertama yang valid.
-            if jam in history_by_hour:
+            tanggal = row.get("Tanggal Histori", "").strip()
+            timestamp_key = f"{tanggal} {jam}"
+
+            # Jika terdapat duplikasi waktu, gunakan baris pertama yang valid.
+            if timestamp_key in history_by_timestamp:
                 continue
 
             raw_aqi = row.get("ISPU Histori", "").strip()
@@ -236,32 +224,19 @@ def get_aqi_history_for_region(region_name):
             except (ValueError, TypeError):
                 aqi = None
 
-            history_by_hour[jam] = {
+            history_by_timestamp[timestamp_key] = {
                 "jam": jam,
                 "aqi": aqi,
+                "tanggal": tanggal,
             }
 
-        history_data = [
-            history_by_hour.get(
-                jam,
-                {
-                    "jam": jam,
-                    "aqi": None,
-                },
-            )
-            for jam in target_intervals
-        ]
+        history_data = list(history_by_timestamp.values())
+        history_data.sort(key=lambda item: item["tanggal"] + " " + item["jam"])
 
     except Exception as e:
         print(f"Error membaca history: {e}")
 
-        history_data = [
-            {
-                "jam": jam,
-                "aqi": None,
-            }
-            for jam in target_intervals
-        ]
+        history_data = []
 
     return {
         "tanggal": tanggal_histori,

@@ -42,14 +42,9 @@ const Navbar = () => {
             </li>
           </ul>
         </div>
-<<<<<<< HEAD
         <a className="landing-brand" style={{ display: "flex", alignItems: "center" }}>
           <img src="/src/assets/logo.jpg" alt="AIRWISE Logo" style={{ width: 32, height: 32, borderRadius: 8, marginRight: 12 }} />
           AIRWISE
-=======
-        <a className="landing-brand">
-          AIRWISE<span>air quality, made clear</span>
->>>>>>> main
         </a>
       </div>
       <div className="navbar-center hidden lg:flex">

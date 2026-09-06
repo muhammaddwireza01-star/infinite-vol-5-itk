@@ -1,68 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const PolaTrenTab = () => {
+const PolaTrenTab = ({ location }) => {
   const [activeFilter, setActiveFilter] = useState("Harian");
+  const [historyData, setHistoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const filters = ["Per Jam", "Harian", "Mingguan", "Bulanan"];
 
-  const getDummyData = () => {
-    switch (activeFilter) {
-      case "Per Jam":
-        return {
-          title1: "Tren AQI 24 Jam Terakhir",
-          labels: ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"],
-          points: [75, 65, 80, 110, 130, 95, 85],
-          title3: "Perbandingan Tren Antarwilayah (24 Jam)",
-          compPoints: [
-            [70, 60, 75, 105, 125, 90, 80],
-            [65, 75, 60, 95, 110, 100, 75],
-            [80, 55, 65, 85, 95, 80, 90],
-            [55, 65, 50, 75, 85, 70, 60],
-          ],
-        };
-      case "Mingguan":
-        return {
-          title1: "Tren AQI 4 Minggu Terakhir",
-          labels: ["Minggu 1", "Minggu 2", "Minggu 3", "Minggu 4"],
-          points: [95, 85, 110, 90],
-          title3: "Perbandingan Tren Antarwilayah (4 Minggu)",
-          compPoints: [
-            [90, 80, 105, 85],
-            [75, 85, 95, 90],
-            [85, 70, 80, 100],
-            [65, 75, 85, 70],
-          ],
-        };
-      case "Bulanan":
-        return {
-          title1: "Tren AQI 6 Bulan Terakhir",
-          labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
-          points: [85, 90, 120, 110, 95, 80],
-          title3: "Perbandingan Tren Antarwilayah (6 Bulan)",
-          compPoints: [
-            [80, 85, 115, 105, 90, 75],
-            [95, 80, 100, 110, 85, 70],
-            [70, 95, 85, 100, 95, 80],
-            [65, 75, 80, 90, 75, 65],
-          ],
-        };
-      case "Harian":
-      default:
-        return {
-          title1: "Tren AQI 7 Hari Terakhir",
-          labels: ["Kam", "Jum", "Sab", "Min", "Sen", "Sel", "Rab"],
-          points: [86, 92, 110, 126, 105, 86, 79],
-          title3: "Perbandingan Tren Antarwilayah (7 Hari)",
-          compPoints: [
-            [80, 90, 105, 120, 100, 80, 75],
-            [75, 82, 98, 105, 115, 85, 70],
-            [95, 75, 85, 90, 105, 95, 80],
-            [60, 70, 75, 85, 80, 65, 60],
-          ],
-        };
-    }
+  useEffect(() => {
+    const fetchHistory = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/history?region=${encodeURIComponent(location.city)}`
+        );
+        const json = await response.json();
+        setHistoryData(json.status === "success" ? json.data.data_per_jam : []);
+      } catch (error) {
+        console.error("Error fetching trend data:", error);
+        setHistoryData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [location.city]);
+
+  const validHistory = historyData.filter((item) => item.aqi !== null);
+  const labels = validHistory.map((item) => item.jam);
+  const points = validHistory.map((item) => item.aqi);
+  const safePoints = points.length > 1 ? points : [0, 0];
+  const safeLabels = labels.length > 1 ? labels : ["-", "-"];
+  const data = {
+    title1: `Tren ISPU ${location.city} (${activeFilter})`,
+    labels: safeLabels,
+    points: safePoints,
+    title3: `Data Historis ${location.city}`,
   };
 
-  const data = getDummyData();
   const N = data.labels.length;
   // Calculate X positions for Chart 1 and 3 (from x=40 to x=580)
   const chartX = Array.from({ length: N }, (_, i) => 40 + i * (540 / (N - 1)));
@@ -70,7 +45,12 @@ const PolaTrenTab = () => {
   const getY = (aqi) => 180 - (aqi / 200) * 160;
 
   const polylinePoints1 = chartX.map((x, i) => `${x},${getY(data.points[i])}`).join(" ");
-  const compPolylines = data.compPoints.map((pts) => chartX.map((x, i) => `${x},${getY(pts[i])}`).join(" "));
+  const maxPoint = Math.max(...data.points);
+  const minPoint = Math.min(...data.points);
+  const averagePoint = Math.round(
+    data.points.reduce((total, point) => total + point, 0) / data.points.length
+  );
+  const historyPolyline = chartX.map((x, i) => `${x},${getY(data.points[i])}`).join(" ");
 
   return (
     <div className="tab-section">
@@ -97,6 +77,7 @@ const PolaTrenTab = () => {
       {/* Chart 1: Tren AQI */}
       <div className="airwise-card" style={{ padding: "24px" }}>
         <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "16px", marginBottom: "16px" }}>{data.title1}</h3>
+        {loading && <p style={{ color: "#64748b", fontSize: "12px" }}>Memuat data {location.city}...</p>}
         <div style={{ width: "100%", height: "224px", position: "relative" }}>
           <svg width="100%" height="100%" viewBox="0 0 600 180" preserveAspectRatio="none">
             <line x1="40" y1="20" x2="580" y2="20" stroke="#f1f5f9" strokeWidth="1" />
@@ -136,18 +117,14 @@ const PolaTrenTab = () => {
               <text x="20" y="64" fill="#94a3b8" fontSize="8" textAnchor="end">150</text>
               <line x1="30" y1="100" x2="480" y2="100" stroke="#f1f5f9" strokeWidth="1" />
               <text x="20" y="104" fill="#94a3b8" fontSize="8" textAnchor="end">100</text>
-              <polyline fill="none" points="40,85 100,90 160,88 210,65 270,72 330,55 380,72 440,88 475,98" stroke="#f43f5e" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" />
-              <circle cx="330" cy="55" r="3.5" fill="#f43f5e" />
+              <polyline fill="none" points={historyPolyline} stroke="#f43f5e" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" />
+              {data.points.map((point, index) => (
+                <circle key={`daily-${index}`} cx={chartX[index]} cy={getY(point)} r="3.5" fill="#f43f5e" />
+              ))}
             </svg>
           </div>
           <div className="chart-time-labels" style={{ padding: "4px 16px 0", display: "flex", justifyContent: "space-between" }}>
-            <span>00:00</span>
-            <span>04:00</span>
-            <span>08:00</span>
-            <span>12:00</span>
-            <span>16:00</span>
-            <span>20:00</span>
-            <span>24:00</span>
+            {data.labels.map((label, index) => <span key={index}>{label}</span>)}
           </div>
         </div>
 
@@ -162,9 +139,9 @@ const PolaTrenTab = () => {
             </div>
             <div>
               <p style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 500 }}>Waktu dengan AQI Tertinggi</p>
-              <h4 style={{ fontSize: "16px", fontWeight: 800, color: "#1e293b" }}>12:00 - 15:00</h4>
+              <h4 style={{ fontSize: "16px", fontWeight: 800, color: "#1e293b" }}>{data.labels[data.points.indexOf(maxPoint)]}</h4>
               <p style={{ fontSize: "12px", fontWeight: 600, color: "#dc2626", marginTop: "2px" }}>
-                AQI Rata-rata: <span style={{ fontWeight: 800 }}>126</span>
+                ISPU Tertinggi: <span style={{ fontWeight: 800 }}>{maxPoint}</span>
               </p>
             </div>
           </div>
@@ -178,9 +155,9 @@ const PolaTrenTab = () => {
             </div>
             <div>
               <p style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 500 }}>Waktu dengan AQI Terbaik</p>
-              <h4 style={{ fontSize: "16px", fontWeight: 800, color: "#1e293b" }}>04:00 - 07:00</h4>
+              <h4 style={{ fontSize: "16px", fontWeight: 800, color: "#1e293b" }}>{data.labels[data.points.indexOf(minPoint)]}</h4>
               <p style={{ fontSize: "12px", fontWeight: 600, color: "#16a34a", marginTop: "2px" }}>
-                AQI Rata-rata: <span style={{ fontWeight: 800 }}>58</span>
+                Rata-rata ISPU: <span style={{ fontWeight: 800 }}>{averagePoint}</span>
               </p>
             </div>
           </div>
@@ -193,16 +170,7 @@ const PolaTrenTab = () => {
           <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "16px" }}>{data.title3}</h3>
           <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "12px", fontWeight: 600 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#f43f5e", display: "inline-block" }} /> Samarinda
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#f59e0b", display: "inline-block" }} /> Balikpapan
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#eab308", display: "inline-block" }} /> Bontang
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#10b981", display: "inline-block" }} /> Kutai Kartanegara
+              <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#f43f5e", display: "inline-block" }} /> {location.city}
             </div>
           </div>
         </div>
@@ -213,10 +181,7 @@ const PolaTrenTab = () => {
             <line x1="30" y1="60" x2="580" y2="60" stroke="#f1f5f9" strokeWidth="1" />
             <line x1="30" y1="100" x2="580" y2="100" stroke="#f1f5f9" strokeWidth="1" />
             <line x1="30" y1="140" x2="580" y2="140" stroke="#f1f5f9" strokeWidth="1" />
-            <polyline fill="none" points={compPolylines[0]} stroke="#f43f5e" strokeLinecap="round" strokeWidth="2.5" />
-            <polyline fill="none" points={compPolylines[1]} stroke="#f59e0b" strokeLinecap="round" strokeWidth="2" />
-            <polyline fill="none" points={compPolylines[2]} stroke="#eab308" strokeLinecap="round" strokeWidth="2" />
-            <polyline fill="none" points={compPolylines[3]} stroke="#10b981" strokeLinecap="round" strokeWidth="2" />
+            <polyline fill="none" points={historyPolyline} stroke="#f43f5e" strokeLinecap="round" strokeWidth="2.5" />
           </svg>
         </div>
 

@@ -6,7 +6,7 @@ import KondisiFotoTab from "./tabs/KondisiFotoTab";
 import PolaTrenTab from "./tabs/PolaTrenTab";
 import EdukasiTab from "./tabs/EdukasiTab";
 import TentangTab from "./tabs/TentangTab";
-import { defaultCity } from "../data/region";
+import { defaultCity } from "../data/regions";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState(() => {
@@ -38,7 +38,7 @@ const Dashboard = () => {
           <KondisiFotoTab />
         </div>
         <div style={{ display: activeTab === "pola-tren" ? "block" : "none" }}>
-          <PolaTrenTab />
+          <PolaTrenTab location={location} />
         </div>
         <div style={{ display: activeTab === "edukasi" ? "block" : "none" }}>
           <EdukasiTab />

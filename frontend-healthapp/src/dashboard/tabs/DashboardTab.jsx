@@ -2,21 +2,34 @@ import { useState, useEffect } from "react";
 
 const DashboardTab = ({ location }) => {
   const [datetime, setDateTime] = useState(new Date());
-<<<<<<< HEAD
-  const [uploadedPhoto, setUploadedPhoto] = useState(null);
-  const [photoAnalysis, setPhotoAnalysis] = useState(null);
+  const [uploadedPhoto, setUploadedPhoto] = useState(() =>
+    sessionStorage.getItem("airwise-uploaded-photo")
+  );
+  const [photoAnalysis, setPhotoAnalysis] = useState(() => {
+    const resultData = sessionStorage.getItem("airwise-photo-analysis-result");
+    if (!resultData) return null;
+
+    try {
+      return JSON.parse(resultData);
+    } catch {
+      return null;
+    }
+  });
   const photoReady = uploadedPhoto !== null;
   const userName = sessionStorage.getItem("airwise-user-name") || "Andi";
 
   const [aqiData, setAqiData] = useState(null);
   const [historyData, setHistoryData] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handlePhotoUpdate = () => {
       setUploadedPhoto(sessionStorage.getItem("airwise-uploaded-photo"));
       const resultData = sessionStorage.getItem("airwise-photo-analysis-result");
-      setPhotoAnalysis(resultData ? JSON.parse(resultData) : null);
+      try {
+        setPhotoAnalysis(resultData ? JSON.parse(resultData) : null);
+      } catch {
+        setPhotoAnalysis(null);
+      }
     };
     window.addEventListener("airwise-photo-updated", handlePhotoUpdate);
     return () => window.removeEventListener("airwise-photo-updated", handlePhotoUpdate);
@@ -24,7 +37,6 @@ const DashboardTab = ({ location }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       try {
         const [aqiRes, histRes] = await Promise.all([
           fetch(`http://localhost:5000/api/get_data_aqi?region=${location.city}`),
@@ -41,7 +53,6 @@ const DashboardTab = ({ location }) => {
       } catch (err) {
         console.error("Error fetching data:", err);
       }
-      setLoading(false);
     };
     fetchData();
   }, [location.city]);
@@ -53,7 +64,7 @@ const DashboardTab = ({ location }) => {
   const displayKejernihan = photoAnalysis?.kejernihan_langit ?? (aqiData?.kejernihan_langit ?? "Buruk");
   const displayStatusAnalisis = photoAnalysis?.status ?? (aqiData?.status_analisis ?? "Perlu Waspada");
   const displayWarna = photoAnalysis?.status_color ?? (aqiData?.kode_warna ?? "#ea580c");
-  
+
   const mappedPerbandingan = aqiData?.perbandingan?.map(item => ({
     name: item.wilayah,
     value: item.aqi,
@@ -61,40 +72,30 @@ const DashboardTab = ({ location }) => {
     color: item.kode_warna,
     textColor: item.kode_warna,
   })) ?? [
-    { name: "Samarinda", value: 75, pct: "37.5%", color: "#eab308", textColor: "#ca8a04" },
-    { name: "Tarakan", value: 71, pct: "35.5%", color: "#eab308", textColor: "#ca8a04" },
-    { name: "Bontang", value: 67, pct: "33.5%", color: "#eab308", textColor: "#ca8a04" },
-    { name: "Singkawang", value: 63, pct: "31.5%", color: "#eab308", textColor: "#ca8a04" },
-    { name: "Palangka Raya", value: 63, pct: "31.5%", color: "#eab308", textColor: "#ca8a04" },
-    { name: "Pontianak", value: 62, pct: "31%", color: "#eab308", textColor: "#ca8a04" },
-    { name: "Balikpapan", value: 58, pct: "29%", color: "#eab308", textColor: "#ca8a04" },
-    { name: "Banjarmasin", value: 55, pct: "27.5%", color: "#eab308", textColor: "#ca8a04" },
-    { name: "Banjarbaru", value: 55, pct: "27.5%", color: "#eab308", textColor: "#ca8a04" },
-  ];
-
-  const getChartPoints = () => {
-    if (!historyData || !historyData.data_per_jam) {
-      return [86, 92, 110, 126, 118, 104, 90, 86];
-    }
-    const data = historyData.data_per_jam;
-    const getVal = (jam) => data.find(d => d.jam === jam)?.aqi || 50;
-    return [
-      getVal("02:00"), getVal("04:00"), getVal("06:00"), getVal("09:00"),
-      getVal("11:00"), getVal("14:00"), getVal("16:00"), getVal("19:00")
+      { name: "Samarinda", value: 75, pct: "37.5%", color: "#eab308", textColor: "#ca8a04" },
+      { name: "Tarakan", value: 71, pct: "35.5%", color: "#eab308", textColor: "#ca8a04" },
+      { name: "Bontang", value: 67, pct: "33.5%", color: "#eab308", textColor: "#ca8a04" },
+      { name: "Singkawang", value: 63, pct: "31.5%", color: "#eab308", textColor: "#ca8a04" },
+      { name: "Palangka Raya", value: 63, pct: "31.5%", color: "#eab308", textColor: "#ca8a04" },
+      { name: "Pontianak", value: 62, pct: "31%", color: "#eab308", textColor: "#ca8a04" },
+      { name: "Balikpapan", value: 58, pct: "29%", color: "#eab308", textColor: "#ca8a04" },
+      { name: "Banjarmasin", value: 55, pct: "27.5%", color: "#eab308", textColor: "#ca8a04" },
+      { name: "Banjarbaru", value: 55, pct: "27.5%", color: "#eab308", textColor: "#ca8a04" },
     ];
-  };
-  
+
+  const chartData = historyData?.data_per_jam?.filter((item) => item.aqi !== null) ?? [];
+  const chartPoints = chartData.length > 1
+    ? chartData.map((item) => item.aqi)
+    : [86, 92, 110, 126, 118, 104, 90, 86];
+  const chartLabels = chartData.length > 1
+    ? chartData.map((item) => item.jam)
+    : ["02:00", "04:00", "06:00", "09:00", "11:00", "14:00", "16:00", "19:00"];
+
   const chartX = [40, 100, 165, 230, 295, 360, 420, 470];
-  const chartPoints = getChartPoints();
   const maxVal = Math.max(150, ...chartPoints);
   const scaleY = (val) => 130 - (val / maxVal) * 110;
   const polylinePoints = chartX.map((x, i) => `${x},${scaleY(chartPoints[i])}`).join(" ");
   const polygonPoints = `${chartX[0]},${scaleY(chartPoints[0])} ` + polylinePoints + ` ${chartX[7]},130 ${chartX[0]},130`;
-=======
-  const [photoReady] = useState(
-    () => sessionStorage.getItem("airwise-photo-analysis-ready") === "true",
-  );
->>>>>>> main
 
   const formatTime = (date) => {
     return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
@@ -146,11 +147,7 @@ const DashboardTab = ({ location }) => {
               color: "#0f172a",
               letterSpacing: "-0.025em",
             }}>
-<<<<<<< HEAD
             Halo, {userName} 👋
-=======
-            Halo, Andi
->>>>>>> main
           </h2>
           <p style={{ fontSize: "14px", color: "#64748b" }}>
             Berikut ringkasan kualitas udara di {location.city}.
@@ -186,7 +183,7 @@ const DashboardTab = ({ location }) => {
       )}
 
       {/* Grid Row 1: Kondisi Udara & Analisis Foto */}
-      <div className="dashboard-top-stack">
+      {photoReady && <div className="dashboard-top-stack">
         {/* Kondisi Udara di Sekitarmu */}
         <div
           className="airwise-card"
@@ -241,7 +238,7 @@ const DashboardTab = ({ location }) => {
 
         {/* Analisis Foto Card */}
         <div
-          className={`airwise-card dashboard-analysis-card ${photoReady ? "" : "dashboard-analysis-empty"}`}
+          className="airwise-card dashboard-analysis-card"
           style={{
             display: "flex",
             flexDirection: "column",
@@ -317,7 +314,7 @@ const DashboardTab = ({ location }) => {
             </p>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Grid Row 2: Gauge & Line Chart */}
       <div className="dashboard-summary-grid grid-12">
@@ -563,14 +560,11 @@ const DashboardTab = ({ location }) => {
           </div>
 
           <div className="chart-time-labels">
-            <span>02:00</span>
-            <span>04:00</span>
-            <span>06:00</span>
-            <span style={{ color: "#d97706", fontWeight: 700 }}>09:00</span>
-            <span>11:00</span>
-            <span>14:00</span>
-            <span>16:00</span>
-            <span>19:00</span>
+            {chartLabels.map((label, index) => (
+              <span key={label} style={index === chartPoints.indexOf(Math.max(...chartPoints)) ? { color: "#d97706", fontWeight: 700 } : {}}>
+                {label}
+              </span>
+            ))}
           </div>
         </div>
       </div>
