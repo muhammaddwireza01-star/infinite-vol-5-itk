@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 const DashboardTab = ({ location }) => {
   const [datetime, setDateTime] = useState(new Date());
+<<<<<<< HEAD
   const [uploadedPhoto, setUploadedPhoto] = useState(null);
   const [photoAnalysis, setPhotoAnalysis] = useState(null);
   const photoReady = uploadedPhoto !== null;
@@ -89,6 +90,11 @@ const DashboardTab = ({ location }) => {
   const scaleY = (val) => 130 - (val / maxVal) * 110;
   const polylinePoints = chartX.map((x, i) => `${x},${scaleY(chartPoints[i])}`).join(" ");
   const polygonPoints = `${chartX[0]},${scaleY(chartPoints[0])} ` + polylinePoints + ` ${chartX[7]},130 ${chartX[0]},130`;
+=======
+  const [photoReady] = useState(
+    () => sessionStorage.getItem("airwise-photo-analysis-ready") === "true",
+  );
+>>>>>>> main
 
   const formatTime = (date) => {
     return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
@@ -140,7 +146,11 @@ const DashboardTab = ({ location }) => {
               color: "#0f172a",
               letterSpacing: "-0.025em",
             }}>
+<<<<<<< HEAD
             Halo, {userName} 👋
+=======
+            Halo, Andi
+>>>>>>> main
           </h2>
           <p style={{ fontSize: "14px", color: "#64748b" }}>
             Berikut ringkasan kualitas udara di {location.city}.
@@ -196,12 +206,14 @@ const DashboardTab = ({ location }) => {
               Ambil Foto untuk Analisis Udara
             </h3>
             <p className="photo-analysis-hint">
-              Ambil foto kondisi langit agar hasil analisis kualitas udara lebih akurat.
+              Ambil foto kondisi langit agar hasil analisis kualitas udara lebih
+              akurat.
             </p>
           </div>
 
           {/* Skyline Image */}
-          <div className={`skyline-container ${photoReady ? "" : "dashboard-photo-empty"}`}>
+          <div
+            className={`skyline-container ${photoReady ? "" : "dashboard-photo-empty"}`}>
             <img
               alt={`Kondisi Skyline ${location.city}`}
               src={uploadedPhoto || "https://lh3.googleusercontent.com/aida-public/AB6AXuDEc47AB4hecNNijMeWX3AgLrWXG5fdxKK4X3nDqxI3fTZVbPWkBJ6yB7lQr9ilMzBFLbEsbAyt2i36yyPGiZBao-SiU25N74Hqawim0bvY5_Ka8qaJrRQraVRtosAKQYRnKjh8MdQPspzKpe5F-6rAYlrleMjxVzcVsCTHZ069Rk4HToLhvoyV1KgIOehyJ9btqldsOwOSk3Lk9byJJyP4OWI7YcEOdWqjvYKbCUKxf4jD_Mehqft4"}

@@ -29,11 +29,17 @@ const Features = () => {
   ];
 
   return (
-    <section id="features" className="landing-section features-section">
+    <section id="features" className="landing-section features-section py-20">
       <div className="flex flex-col gap-4">
-        <span className="eyebrow">KENAPA AIRWISE?</span>
-        <h2>Semua yang Anda butuhkan<br /><em>untuk udara yang lebih baik.</em></h2>
-        <p>Informasi udara yang relevan, sederhana, dan dapat ditindaklanjuti.</p>
+        <span className="eyebrow text-xs">KENAPA AIRWISE?</span>
+        <h2 className="text-4xl">
+          Semua yang Anda butuhkan
+          <br />
+          <em>untuk udara yang lebih baik.</em>
+        </h2>
+        <p className="text-sm">
+          Informasi udara yang relevan, sederhana, dan dapat ditindaklanjuti.
+        </p>
       </div>
       <div className="feature-grid">
         {contents.map(({ ilustration, title, desc, details }) => (
@@ -45,8 +51,31 @@ const Features = () => {
             details={details}
           />
         ))}
+<<<<<<< HEAD
+=======
+        <div className="feature-stats">
+          <span className="eyebrow text-xs">AIRWISE DALAM ANGKA</span>
+          <div>
+            <strong className="text-[1rem]">20+</strong>
+            <small className="text-[10px]">Kota Dipantau</small>
+          </div>
+          <div>
+            <strong className="text-[1rem]">15K+</strong>
+            <small className="text-[10px]">Pengguna Aktif</small>
+          </div>
+          <div>
+            <strong className="text-[1rem]">99%</strong>
+            <small className="text-[10px]">Akurasi Data</small>
+          </div>
+          <div>
+            <strong className="text-[1rem]">24/7</strong>
+            <smal className="text-[10px]" l>
+              Pemantauan
+            </smal>
+          </div>
+        </div>
+>>>>>>> main
       </div>
-
     </section>
   );
 };

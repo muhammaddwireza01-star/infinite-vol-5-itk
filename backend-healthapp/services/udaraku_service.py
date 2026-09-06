@@ -1,16 +1,6 @@
 import csv
 from pathlib import Path
 
-
-# Lokasi project:
-# backend-healthapp/
-# ├── data/
-# │   └── ispu_seluruh_kota_kalimantan.csv
-# └── services/
-#     └── aqi_service.py
-#
-# Karena file ini berada di folder services, kita harus naik satu level
-# terlebih dahulu untuk mencapai folder project utama.
 BASE_DIR = Path(__file__).resolve().parent.parent
 CSV_FILE_PATH = BASE_DIR / "data" / "ispu_seluruh_kota_kalimantan.csv"
 
@@ -148,7 +138,6 @@ def get_current_aqi_for_region(region_name):
             except (ValueError, TypeError):
                 continue
 
-            # Masukkan detail kota beserta properti warnanya untuk frontend
             if not any(d["wilayah"] == kota for d in comparison_data):
                 city_properties = get_aqi_properties(aqi_score)
                 comparison_data.append({
@@ -158,7 +147,6 @@ def get_current_aqi_for_region(region_name):
                     "kode_warna": city_properties["kode_warna"]
                 })
 
-            # Ambil data wilayah yang diminta (hanya untuk satu wilayah).
             if (
                 _normalize_region(kota) == target_region
                 and current_data is None
@@ -176,7 +164,6 @@ def get_current_aqi_for_region(region_name):
                     **properties,
                 }
 
-        # Urutkan dari AQI tertinggi ke terendah untuk list perbandingan.
         comparison_data.sort(
             key=lambda x: x["aqi"],
             reverse=True,
@@ -187,7 +174,6 @@ def get_current_aqi_for_region(region_name):
         return None
 
     if current_data:
-        # Top 5 kota untuk komponen perbandingan wilayah lain.
         current_data["perbandingan"] = comparison_data[:5]
 
     return current_data
@@ -197,7 +183,6 @@ def get_aqi_history_for_region(region_name):
     history_data = []
     tanggal_histori = ""
     
-    # Penyesuaian interval waktu menjadi 1 jam untuk grafik
     target_intervals = [f"{str(i).zfill(2)}:00" for i in range(24)]
     target_region = _normalize_region(region_name)
 
@@ -212,11 +197,9 @@ def get_aqi_history_for_region(region_name):
                 _normalize_region(kota) == target_region
                 and jam in target_intervals
             ):
-                # Ekstrak tanggal untuk subjudul chart frontend
                 if not tanggal_histori:
                     tanggal_histori = row.get("Tanggal Histori", "").strip()
 
-                # Ambil satu titik data untuk setiap jam.
                 if not any(h["jam"] == jam for h in history_data):
                     try:
                         aqi = int(float(row["ISPU Histori"]))
@@ -228,7 +211,6 @@ def get_aqi_history_for_region(region_name):
                         "aqi": aqi,
                     })
 
-        # Urutkan sesuai urutan waktu yang ditentukan.
         interval_order = {
             jam: index
             for index, jam in enumerate(target_intervals)
@@ -241,7 +223,6 @@ def get_aqi_history_for_region(region_name):
     except Exception as e:
         print(f"Error membaca history: {e}")
 
-    # Struktur response diubah menjadi dictionary untuk memuat metadata tanggal
     return {
         "tanggal": tanggal_histori,
         "data_per_jam": history_data

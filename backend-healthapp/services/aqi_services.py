@@ -1,16 +1,6 @@
 import csv
 from pathlib import Path
 
-
-# Lokasi project:
-# backend-healthapp/
-# ├── data/
-# │   └── ispu_seluruh_kota_kalimantan.csv
-# └── services/
-#     └── aqi_service.py
-#
-# Karena file ini berada di folder services, kita harus naik satu level
-# terlebih dahulu untuk mencapai folder project utama.
 BASE_DIR = Path(__file__).resolve().parent.parent
 CSV_FILE_PATH = BASE_DIR / "data" / "ispu_seluruh_kota_kalimantan.csv"
 
@@ -251,9 +241,6 @@ def get_aqi_history_for_region(region_name):
                 "aqi": aqi,
             }
 
-        # SELALU bentuk 18 titik (02:00 ... 19:00), termasuk jam
-        # yang belum tersedia di CSV. Ini membuat struktur response
-        # konsisten untuk frontend/chart.
         history_data = [
             history_by_hour.get(
                 jam,
@@ -268,7 +255,6 @@ def get_aqi_history_for_region(region_name):
     except Exception as e:
         print(f"Error membaca history: {e}")
 
-        # Tetap kembalikan struktur yang konsisten meskipun CSV gagal dibaca.
         history_data = [
             {
                 "jam": jam,

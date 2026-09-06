@@ -42,9 +42,14 @@ const Navbar = () => {
             </li>
           </ul>
         </div>
+<<<<<<< HEAD
         <a className="landing-brand" style={{ display: "flex", alignItems: "center" }}>
           <img src="/src/assets/logo.jpg" alt="AIRWISE Logo" style={{ width: 32, height: 32, borderRadius: 8, marginRight: 12 }} />
           AIRWISE
+=======
+        <a className="landing-brand">
+          AIRWISE<span>air quality, made clear</span>
+>>>>>>> main
         </a>
       </div>
       <div className="navbar-center hidden lg:flex">
@@ -68,8 +73,12 @@ const Navbar = () => {
       </div>
       <div className="navbar-end">
         <div className="landing-auth-actions">
-          <Link to="/login" className="landing-login-button">Masuk</Link>
-          <Link to="/login" className="landing-nav-button">Daftar</Link>
+          <Link to="/login" className="landing-login-button py-2 text-[1rem] ">
+            Masuk
+          </Link>
+          <Link to="/login" className="landing-nav-button py-2 text-[1rem]">
+            Daftar
+          </Link>
         </div>
       </div>
     </nav>
