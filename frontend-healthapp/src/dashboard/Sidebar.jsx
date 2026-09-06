@@ -133,36 +133,36 @@ const Sidebar = ({ activeTab, onTabChange, city, onLocationChange }) => {
         </nav>
 
         {/* Location Selector */}
-        <div className="sidebar-location">
-          <label>Kota</label>
-          <select
-            value={city}
-            onChange={(event) => onLocationChange(event.target.value)}>
-            {cities.map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </select>
+        <div className="sidebar-location flex flex-col">
+          <div className="mb-8">
+            <label>Kota</label>
+            <select
+              value={city}
+              onChange={(event) => onLocationChange(event.target.value)}>
+              {cities.map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
-
-      {/* Logout */}
-      <div className="sidebar-footer">
-        <button className="logout-btn">
-          <svg
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24">
-            <path
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span>Logout</span>
-        </button>
+        <div className="">
+          <button className="logout-btn">
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24">
+              <path
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
     </aside>
   );

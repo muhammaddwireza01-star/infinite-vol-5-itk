@@ -35,26 +35,59 @@ const Solutions = () => {
   ];
 
   return (
-    <section id="solutions" className="landing-section solutions-section">
+    <section
+      id="solutions"
+      className="landing-section solutions-section  py-30">
       <div className="flex flex-col gap-4 items-center">
-        <span className="eyebrow">LEBIH PAHAM, LEBIH SEHAT</span>
-        <h2>Lebih paham,<br /><em>lebih siap melindungi diri.</em></h2>
-        <p>Pengetahuan yang cukup untuk membuat keputusan sehari-hari yang lebih sehat.</p>
+        <span className="eyebrow text-xs">LEBIH PAHAM, LEBIH SEHAT</span>
+        <h2 className="text-4xl">
+          Lebih paham,
+          <br />
+          <em>lebih siap melindungi diri.</em>
+        </h2>
+        <p className="text-[14px]">
+          Pengetahuan yang cukup untuk membuat keputusan sehari-hari yang lebih
+          sehat.
+        </p>
       </div>
 
       <div className="education-grid">
         {solutions.map(({ ilustration, title, desc, details }) => (
-          <Card key={title} ilustration={ilustration} title={title} desc={desc} details={details} />
+          <Card
+            key={title}
+            ilustration={ilustration}
+            title={title}
+            desc={desc}
+            details={details}
+          />
         ))}
       </div>
-      <div id="about" className="about-airwise">
-        <div className="about-visual"><span>◒</span><b>24/7</b><small>memantau udara</small></div>
+      <div id="about" className="about-airwise py-20">
+        <div className="about-visual">
+          <span>◒</span>
+          <b>24/7</b>
+          <small className="text[10px]">memantau udara</small>
+        </div>
         <div className="about-copy">
-          <span className="eyebrow">TENTANG AIRWISE</span>
-          <h2>Teknologi untuk<br /><em>hidup lebih sehat.</em></h2>
-          <p>AIRWISE membantu Anda memahami kualitas udara melalui data real-time, analisis visual, dan edukasi kesehatan yang mudah dipahami.</p>
-          <div className="about-points"><span>♥ Berorientasi kesehatan</span><span>● Data terpercaya</span><span>▰ Edukasi untuk semua</span></div>
-          <a href="#about" className="about-link">Kenali AIRWISE lebih dekat →</a>
+          <span className="eyebrow text-xs">TENTANG AIRWISE</span>
+          <h2 className="text-4xl">
+            Teknologi untuk
+            <br />
+            <em>hidup lebih sehat.</em>
+          </h2>
+          <p className="text-[14px]">
+            AIRWISE membantu Anda memahami kualitas udara melalui data
+            real-time, analisis visual, dan edukasi kesehatan yang mudah
+            dipahami.
+          </p>
+          <div className="about-points">
+            <span className=" text-[10px]">♥ Berorientasi kesehatan</span>
+            <span className=" text-[10px]">● Data terpercaya</span>
+            <span className=" text-[10px]">▰ Edukasi untuk semua</span>
+          </div>
+          <a href="#about" className="about-link text-[10px]">
+            Kenali AIRWISE lebih dekat →
+          </a>
         </div>
       </div>
     </section>
