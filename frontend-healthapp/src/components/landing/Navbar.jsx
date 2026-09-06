@@ -42,7 +42,9 @@ const Navbar = () => {
             </li>
           </ul>
         </div>
-        <a className="landing-brand">AIRWISE<span>air quality, made clear</span></a>
+        <a className="landing-brand">
+          AIRWISE<span>air quality, made clear</span>
+        </a>
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="landing-menu menu menu-horizontal px-1">
@@ -65,8 +67,12 @@ const Navbar = () => {
       </div>
       <div className="navbar-end">
         <div className="landing-auth-actions">
-          <Link to="/login" className="landing-login-button">Masuk</Link>
-          <Link to="/login" className="landing-nav-button">Daftar</Link>
+          <Link to="/login" className="landing-login-button py-2 text-[1rem] ">
+            Masuk
+          </Link>
+          <Link to="/login" className="landing-nav-button py-2 text-[1rem]">
+            Daftar
+          </Link>
         </div>
       </div>
     </nav>
