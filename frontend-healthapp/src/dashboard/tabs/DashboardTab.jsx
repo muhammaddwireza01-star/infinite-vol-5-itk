@@ -2,11 +2,8 @@ import { useState, useEffect } from "react";
 
 const DashboardTab = ({ location }) => {
   const [datetime, setDateTime] = useState(new Date());
-  const [uploadedPhoto, setUploadedPhoto] = useState(() => sessionStorage.getItem("airwise-uploaded-photo"));
-  const [photoAnalysis, setPhotoAnalysis] = useState(() => {
-    const data = sessionStorage.getItem("airwise-photo-analysis-result");
-    return data ? JSON.parse(data) : null;
-  });
+  const [uploadedPhoto, setUploadedPhoto] = useState(null);
+  const [photoAnalysis, setPhotoAnalysis] = useState(null);
   const photoReady = uploadedPhoto !== null;
   const userName = sessionStorage.getItem("airwise-user-name") || "Andi";
 
