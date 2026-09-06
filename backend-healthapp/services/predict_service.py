@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
+from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 from PIL import Image
 import io
 from pathlib import Path
@@ -162,6 +163,15 @@ def load_model():
     print(f"Model AIRWISE berhasil di-load pada {_device}")
     return _model, _device
 
+_indoor_model = None
+
+def load_indoor_model():
+    global _indoor_model
+    if _indoor_model is None:
+        _indoor_model = mobilenet_v2(weights=MobileNet_V2_Weights.IMAGENET1K_V1)
+        _indoor_model.eval()
+    return _indoor_model
+
 
 # ==========================================
 # FUNGSI PREDIKSI
@@ -254,6 +264,41 @@ def predict_from_image(image_bytes):
     visibility_confidence = torch.softmax(outputs["visibility"], dim=1).max().item()
     clarity_confidence = torch.softmax(outputs["clarity"], dim=1).max().item()
     color_confidence = torch.softmax(outputs["color"], dim=1).max().item()
+
+    # --- INDOOR DETECTION HEURISTIC (MobileNetV2 Object Recognition) ---
+    # Kita menggunakan MobileNetV2 untuk mengenali apakah gambar ini mengandung 
+    # objek spesifik (seperti perabotan, ruangan, wajah) alih-alih pemandangan langit.
+    indoor_model = load_indoor_model()
+    with torch.no_grad():
+        out = indoor_model(input_tensor.cpu())
+        probs = torch.nn.functional.softmax(out[0], dim=0)
+        
+    top_prob, top_catid = torch.topk(probs, 1)
+    prob = top_prob.item()
+    catid = top_catid.item()
+    
+    is_indoor = False
+    
+    # Kumpulan ID kelas ImageNet yang diperbolehkan (pemandangan alam/langit/outdoor)
+    # 970-980: alp, cliff, coral reef, lakeside, promontory, sandbar, seashore, valley, volcano, dsb.
+    # 417: balloon, 603: kite, 551: flagpole, 920: traffic light (biasa ada di langit)
+    allowed_outdoor_classes = {417, 603, 551, 920, 970, 971, 972, 973, 974, 975, 976, 977, 978, 979, 980}
+    
+    # Jika model MobileNet sangat yakin (probabilitas > 40%) mengenali objek tertentu,
+    # dan objek itu bukanlah bagian dari lanskap alam/langit, maka itu kemungkinan besar indoor/benda dekat.
+    if prob > 0.40 and catid not in allowed_outdoor_classes:
+        is_indoor = True
+        
+    # Heuristik tambahan jika model AQI sendiri sangat bingung (confidence rendah)
+    if visibility_confidence < 0.50 and clarity_confidence < 0.50:
+        is_indoor = True
+        
+    if is_indoor:
+        return {
+            "is_indoor": True,
+            "message": f"Gambar terdeteksi sebagai dalam ruangan atau bukan langit (Deteksi: {prob:.1%} yakin objek non-langit). AI hanya dapat menganalisis kualitas udara dari foto luar ruangan (outdoor)."
+        }
+    # --- END INDOOR DETECTION ---
 
     # Status dan rekomendasi
     status_info = _get_status_and_recommendation(aqi_score)

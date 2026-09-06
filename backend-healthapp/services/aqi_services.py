@@ -187,8 +187,8 @@ def get_current_aqi_for_region(region_name):
         return None
 
     if current_data:
-        # Top 5 kota untuk komponen perbandingan wilayah lain.
-        current_data["perbandingan"] = comparison_data[:5]
+        # Top 9 kota untuk komponen perbandingan wilayah lain.
+        current_data["perbandingan"] = comparison_data[:9]
 
     return current_data
 

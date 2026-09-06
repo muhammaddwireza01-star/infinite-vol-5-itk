@@ -83,6 +83,13 @@ def predict_image():
         # Jalankan prediksi model
         result = predict_from_image(image_bytes)
 
+        # Cek apakah gambar terdeteksi indoor
+        if result.get("is_indoor"):
+            return jsonify({
+                "status": "error",
+                "message": result.get("message")
+            }), 400
+
         return jsonify({
             "status": "success",
             "message": "Analisis foto berhasil",
